@@ -1,22 +1,32 @@
 <div class="page-main-header">
-        <div class="main-header-right row m-0">
-          <div class="main-header-left">
-            <div class="logo-wrapper"><a href="index.html"><img class="img-fluid" src="../assets/images/logo/logo.png" alt=""></a></div>
-          </div>
-          <div class="toggle-sidebar"><i class="status_toggle middle" data-feather="align-center" id="sidebar-toggle"></i></div>
-          <div class="left-menu-header col">
+    <div class="main-header-right row m-0">
+        <div class="main-header-left">
+            <div class="logo-wrapper"><a href="index.html"><img class="img-fluid" src="../assets/images/logo/logo.png"
+                        alt=""></a></div>
+        </div>
+        <div class="toggle-sidebar"><i class="status_toggle middle" data-feather="align-center" id="sidebar-toggle"></i>
+        </div>
+        <div class="left-menu-header col">
             <ul>
-              <li>
-                <form class="form-inline search-form">
-                  <div class="search-bg"><i class="fa fa-search"></i></div>
-                  <input class="form-control-plaintext" placeholder="Search here.....">
-                </form><span class="d-sm-none mobile-search search-bg"><i class="fa fa-search"></i></span>
-              </li>
+                {{-- <li class="position-relative">
+                    <input type="text" class="form-control" id="search-bar" placeholder="Search here">
+                    <ul class="list-group mt-2" id="search-results" style="position:absolute; z-index:1000;"></ul>
+
+                </li> --}}
+                <li class="position-relative">
+                    <form class="form-inline search-form">
+                        <div class="search-bg"><i class="fa fa-search"></i></div>
+                        <input class="form-control-plaintext" id="search-bar" placeholder="Search here.....">
+                    </form>
+                    <span class="d-sm-none mobile-search search-bg"><i class="fa fa-search"></i></span>
+                    <ul class="list-group mt-2" id="search-results"
+                        style="position:absolute; z-index:1000;width: 100%;"></ul>
+                </li>
             </ul>
-          </div>
-          <div class="nav-right col pull-right right-menu">
+        </div>
+        <div class="nav-right col pull-right right-menu">
             <ul class="nav-menus">
-              <li class="onhover-dropdown">
+                {{-- <li class="onhover-dropdown">
                 <div class="notification-box"><i data-feather="shopping-bag"></i><span class="badge badge-pill badge-secondary">4</span></div>
                 <div class="notification-dropdown cart onhover-show-div">
                   <div class="m-3">
@@ -94,8 +104,8 @@
                   </ul>
                   <div class="m-3 mt-1"><a class="btn btn-light w-100 mt-3" href="cart.html">View cart</a></div>
                 </div>
-              </li>
-              <li class="onhover-dropdown">
+              </li> --}}
+                {{-- <li class="onhover-dropdown">
                 <div class="notification-box"><i data-feather="bell"></i><span class="badge badge-pill badge-primary">4</span></div>
                 <div class="notification-dropdown onhover-show-div">
                   <div class="m-3"><a class="btn btn-dark w-100" href="email_inbox.html">You have 4 notifications</a></div>
@@ -115,8 +125,8 @@
                   </ul>
                   <div class="m-3 mt-1"><a class="btn btn-light w-100" href="email_inbox.html">View all</a></div>
                 </div>
-              </li>
-              <li class="onhover-dropdown"><i data-feather="message-square"></i>
+              </li> --}}
+                {{-- <li class="onhover-dropdown"><i data-feather="message-square"></i>
                 <div class="chat-dropdown onhover-show-div">                   
                   <div class="m-3"><a class="btn btn-dark w-100" href="chat.html">You have 3 message</a></div>
                   <ul class="border-top custom-scrollbar"> 
@@ -159,23 +169,31 @@
                   </ul>
                   <div class="m-3"><a class="btn btn-light w-100" href="chat.html">View all</a></div>
                 </div>
-              </li>
-              <li>
-                <div class="mode"><i class="fa fa-moon-o"></i></div>
-              </li>
-              <li><a class="text-dark" href="#!" onclick="javascript:toggleFullScreen()"><i data-feather="maximize"></i></a></li>
-              <li class="onhover-dropdown">
-                <div class="media profile-media"><img class="rounded-circle" src="../assets/images/avtar/emoji/9.png" alt=""></div>
-                <ul class="profile-dropdown onhover-show-div">
-                  <li><a href="user-profile.html"><i data-feather="user"></i><span>Account </span></a></li>
-                  <li><a href="user-profile.html"><i data-feather="mail"></i><span>Inbox</span></a></li>
-                  <li><a href="kanban.html"><i data-feather="file-text"></i><span>Taskboard</span></a></li>
-                  <li><a href="edit-profile.html"><i data-feather="settings"></i><span>Settings</span></a></li>
-                  <li><a class="btn btn-light w-100" href="login.html"><i data-feather="log-in"></i>Log out</a></li>
-                </ul>
-              </li>
+              </li> --}}
+                {{-- <li class="position-relative">
+                    <input type="text" class="form-control" id="search-bar" placeholder="Search here">
+                    <ul class="list-group mt-2" id="search-results" style="position:absolute; z-index:1000;"></ul>
+
+                </li> --}}
+                <li>
+                    <div class="mode"><i class="fa fa-moon-o"></i></div>
+                </li>
+                <li><a class="text-dark" href="#!" onclick="javascript:toggleFullScreen()"><i
+                            data-feather="maximize"></i></a></li>
+                <li class="onhover-dropdown">
+                    <div class="media profile-media"><img class="rounded-circle"
+                            src="../assets/images/avtar/emoji/9.png" alt=""></div>
+                    <ul class="profile-dropdown onhover-show-div">
+                        <li><a href="user-profile.html"><i data-feather="user"></i><span>Account </span></a></li>
+                        <li><a href="user-profile.html"><i data-feather="mail"></i><span>Inbox</span></a></li>
+                        <li><a href="kanban.html"><i data-feather="file-text"></i><span>Taskboard</span></a></li>
+                        <li><a href="edit-profile.html"><i data-feather="settings"></i><span>Settings</span></a></li>
+                        <li><a class="btn btn-light w-100" href="login.html"><i data-feather="log-in"></i>Log out</a>
+                        </li>
+                    </ul>
+                </li>
             </ul>
-          </div>
-          <div class="d-lg-none col mobile-toggle pull-right"><i data-feather="more-horizontal"></i></div>
         </div>
-      </div>
+        <div class="d-lg-none col mobile-toggle pull-right"><i data-feather="more-horizontal"></i></div>
+    </div>
+</div>

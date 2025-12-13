@@ -64768,3 +64768,38 @@ footer p {
     }
 }
 /*# sourceMappingURL=style.css.map */
+/* PRIMARY */
+.tooltip-primary .tooltip-inner {
+    background: #0d6efd !important;
+    color: white !important;
+}
+.tooltip-primary .tooltip-arrow::before {
+    border-top-color: #0d6efd !important;
+}
+
+/* WARNING */
+.tooltip-warning .tooltip-inner {
+    background: #ffc107 !important;
+    color: #000 !important;
+}
+.tooltip-warning .tooltip-arrow::before {
+    border-top-color: #ffc107 !important;
+}
+
+/* DANGER */
+.tooltip-danger .tooltip-inner {
+    background: #dc3545 !important;
+    color: white !important;
+}
+.tooltip-danger .tooltip-arrow::before {
+    border-top-color: #dc3545 !important;
+}
+
+/* SUCCESS */
+.tooltip-success .tooltip-inner {
+    background: #198754 !important;
+    color: white !important;
+}
+.tooltip-success .tooltip-arrow::before {
+    border-top-color: #198754 !important;
+}
