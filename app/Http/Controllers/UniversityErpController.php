@@ -219,4 +219,20 @@ class UniversityErpController extends Controller
 
         return response()->json($erps);
     }
+
+    public function fetchData($service, $method)
+    {
+        // Example: You can use the $service and $method parameters to determine what data to fetch
+        // For demonstration, let's assume we are fetching ERP data based on service and method
+
+        // You can implement your logic here based on $service and $method
+        // For now, let's just return all ERPs as an example
+
+        
+
+        return response()->json([
+            'status' => 'success',
+            'data'   => $erps
+        ]);
+    }
 }

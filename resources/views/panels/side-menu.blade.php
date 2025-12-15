@@ -37,31 +37,48 @@
                                 <span>Sample</span>
                             </a>
                             <ul class="nav-submenu menu-content">
-                                <li><a href="{{ route('sample.page') }}" class="{{ request()->routeIs('sample.page') ? 'active' : '' }}">Sample Page</a></li>
+                                <li><a href="{{ route('sample.page') }}"
+                                        class="{{ request()->routeIs('sample.page') ? 'active' : '' }}">Sample Page</a>
+                                </li>
                             </ul>
                         </li>
 
                         <!-- User Management -->
-                        <li class="dropdown 
+                        <li
+                            class="dropdown 
                             {{ request()->routeIs('roles.*') || request()->routeIs('permissions.*') || request()->routeIs('users.*') ? 'active' : '' }}">
                             <a class="nav-link menu-title" href="javascript:void(0)">
                                 <i data-feather="users"></i>
                                 <span>User Management</span>
                             </a>
                             <ul class="nav-submenu menu-content">
-                                <li><a href="{{ route('roles.index') }}" class="{{ request()->routeIs('roles.*') ? 'active' : '' }}">Roles</a></li>
-                                <li><a href="{{ route('permissions.index') }}" class="{{ request()->routeIs('permissions.*') ? 'active' : '' }}">Permissions</a></li>
-                                <li><a href="{{ route('users.index') }}" class="{{ request()->routeIs('users.*') ? 'active' : '' }}">Users</a></li>
+                                <li><a href="{{ route('roles.index') }}"
+                                        class="{{ request()->routeIs('roles.*') ? 'active' : '' }}">Roles</a></li>
+                                <li><a href="{{ route('permissions.index') }}"
+                                        class="{{ request()->routeIs('permissions.*') ? 'active' : '' }}">Permissions</a>
+                                </li>
+                                <li><a href="{{ route('users.index') }}"
+                                        class="{{ request()->routeIs('users.*') ? 'active' : '' }}">Users</a></li>
+                            </ul>
+                        </li>
+                        <li class="dropdown">
+                            <a class="nav-link menu-title" href="javascript:void(0)">
+                                <i data-feather="users"></i>
+                                <span>ERP's</span>
+                            </a>
+                            <ul class="nav-submenu menu-content">
+                                <li><a href="{{ route('university-erp.index') }}"
+                                        class="{{ request()->routeIs('university-erp.*') ? 'active' : '' }}">ERP
+                                        University</a></li>
+                                <li>
+                                    <a
+                                        href="{{ route('services.handle', ['method' => 'students', 'uni_id' => session('uni_id')]) }}">
+                                        Students
+                                    </a>
+                                </li>
                             </ul>
                         </li>
 
-                        <li class="dropdown ">
-                            <a class="nav-link menu-title" href="{{ route('university-erp.index') }}">
-                                <i data-feather="home"></i>
-                                <span>University ERP</span>
-                            </a>
-                            
-                        </li>
                     </ul>
                 </div>
 

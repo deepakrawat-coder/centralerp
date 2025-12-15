@@ -21,7 +21,23 @@
         <div class="modal-content" id="modal-xl-content">
         </div>
     </div>
+</div><!-- University ERP Modal -->
+<div class="modal fade" id="erpModal" tabindex="-1" aria-labelledby="erpModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="erpModalLabel"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row" id="erpModalBody">
+                    <!-- Dynamic ERP items will go here -->
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
 <!-- latest jquery-->
 <script src="../assets/js/jquery-3.5.1.min.js"></script>
 <!-- feather icon js-->
@@ -317,10 +333,99 @@ $('#search-bar').on('input', debounce(function() {
             }
         });
     }, 300));
-    $(document).on('click', '.erp-item', function () {
-    let erpId = $(this).data('id');
+    
+    $(document).on('click', '.erp-item', function() {
+        let erpId = $(this).data('id');
 
-    window.location.href =
-        "/services/university_erp/get-live-url?id=" + erpId;
-});
+        $.ajax({
+            url: "/services/university-erp/0",
+            type: "GET",
+            data: {
+                id: erpId
+            },
+
+            beforeSend: function() {
+                toastr.info("Fetching live URL...");
+            },
+
+            success: function(response) {
+                if (response.status === true && Array.isArray(response.data)) {
+
+                    let universities = response.data;
+                    let liveUrl = response.live_url.replace(/\/$/, '');
+
+                    $('#erpModalLabel').text('Select University');
+                    $('#erpModalBody').html('');
+
+                    let html = `<div class="row justify-content-center">`;
+
+                    universities.forEach(function(uni) {
+
+                        let logo = uni.Logo ?
+                            liveUrl + uni.Logo :
+                            '/assets/images/default.png';
+
+                        html += `
+                        <div class="col-md-4 text-center mb-3">
+                            <div class="card erp-university-card"
+                                 data-id="${uni.ID}"
+                                 data-live-url="${liveUrl}"                                 
+                                 style="cursor:pointer;">
+                                <div class="card-body">
+                                    <img src="${logo}" class="img-fluid mb-2" style="max-height:90px;">
+                                    <p class="mb-0">
+                                        <strong>${uni.Short_Name}</strong><br>
+                                        <small>(${uni.Vertical})</small>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    });
+
+                    html += `</div>`;
+                    $('#erpModalBody').html(html);
+
+                    // 🔥 SHOW MODAL
+                    new bootstrap.Modal(document.getElementById('erpModal')).show();
+
+                } else {
+                    toastr.error("No universities found!");
+                }
+            },
+
+            error: function() {
+                toastr.error("Something went wrong!");
+            }
+        });
+    });
+    $(document).on('click', '.erp-university-card', function() {
+
+        let uniId = $(this).data('id');
+        let liveUrl = $(this).data('live-url');
+        if (!uniId) {
+            toastr.error("University ID missing!");
+            return;
+        }
+
+        $.ajax({
+            url: "/dashboards/"+uniId,
+            type: "GET",
+            data: {
+                id: uniId,
+                live_url: liveUrl
+            },
+            success: function(res) {
+                if (res.status) {
+                    window.location.href = "/dashboard" ;
+                } else {
+                    toastr.error(res.message);
+                }
+            },
+            error: function() {
+                toastr.error("Something went wrong!");
+            }
+        });
+
+    });
 </script>

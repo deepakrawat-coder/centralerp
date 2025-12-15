@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\UniversityErpController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -12,12 +13,13 @@ Route::get('/', function () {
 
 Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified',])->group(function () {
     //sample dashboard
-    Route::get('/dashboard', function () {
-        return view('dashboards.default-dashboard');
-    })->name('dashboard');
+
     Route::view('/sample-page', 'sample.samplePage')->name('sample.page');
 });
 Route::middleware(['role:Super Admin'])->group(function () {
+    Route::get('/dashboard', function () {
+        return view('services.dashboard.index');
+    })->name('dashboard');
     Route::resource('users', UserController::class);
     Route::resource('permissions', PermissionController::class);
     // Show assign form
@@ -34,6 +36,10 @@ Route::middleware(['role:Super Admin'])->group(function () {
         ->except(['show']);
     Route::get('university-erp/search', [UniversityErpController::class, 'search'])->name('university-erp.search');
 
-    Route::get("{service}/{method}",[UniversityErpController::class,"fetchData"])->name("university-erp.fetch-data");
-
+    // Route::get('services/{method}/{uni_id}', [ServiceController::class, 'handle']);
+    // Route::get('services/students/{uni_id}', [ServiceController::class, 'students'])->name('services.students');
+    Route::get('services/{method}/{uni_id}', [ServiceController::class, 'handle'])
+        ->name('services.handle');
+    // Route::get('/service/university', [ServiceController::class, 'handle']);
+    Route::get('dashboards/{uni_id}', [ServiceController::class, 'dashboard'])->name('services.dashboard');
 });
