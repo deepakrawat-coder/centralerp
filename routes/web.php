@@ -42,4 +42,7 @@ Route::middleware(['role:Super Admin'])->group(function () {
         ->name('services.handle');
     // Route::get('/service/university', [ServiceController::class, 'handle']);
     Route::get('dashboards/{uni_id}', [ServiceController::class, 'dashboard'])->name('services.dashboard');
+    Route::get('/services/students/{uni_id}', [ServiceController::class, 'students'])
+    ->name('services.students');
+
 });

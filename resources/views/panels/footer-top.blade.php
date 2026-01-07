@@ -39,45 +39,45 @@
 </div>
 
 <!-- latest jquery-->
-<script src="../assets/js/jquery-3.5.1.min.js"></script>
+<script src="/assets/js/jquery-3.5.1.min.js"></script>
 <!-- feather icon js-->
-<script src="../assets/js/icons/feather-icon/feather.min.js"></script>
-<script src="../assets/js/icons/feather-icon/feather-icon.js"></script>
+<script src="/assets/js/icons/feather-icon/feather.min.js"></script>
+<script src="/assets/js/icons/feather-icon/feather-icon.js"></script>
 <!-- Sidebar jquery-->
-<script src="../assets/js/sidebar-menu.js"></script>
-<script src="../assets/js/config.js"></script>
+<script src="/assets/js/sidebar-menu.js"></script>
+<script src="/assets/js/config.js"></script>
 <!-- Bootstrap js-->
-<script src="../assets/js/bootstrap/popper.min.js"></script>
-<script src="../assets/js/bootstrap/bootstrap.min.js"></script>
+<script src="/assets/js/bootstrap/popper.min.js"></script>
+<script src="/assets/js/bootstrap/bootstrap.min.js"></script>
 <!-- Plugins JS start-->
-{{-- <script src="../assets/js/chart/apex-chart/apex-chart.js"></script>
-<script src="../assets/js/chart/apex-chart/stock-prices.js"></script> --}}
-<script src="../assets/js/prism/prism.min.js"></script>
-<script src="../assets/js/clipboard/clipboard.min.js"></script>
-<script src="../assets/js/custom-card/custom-card.js"></script>
-<script src="../assets/js/vector-map/jquery-jvectormap-2.0.2.min.js"></script>
-<script src="../assets/js/vector-map/map/jquery-jvectormap-world-mill-en.js"></script>
-<script src="../assets/js/vector-map/map/jquery-jvectormap-us-aea-en.js"></script>
-<script src="../assets/js/vector-map/map/jquery-jvectormap-uk-mill-en.js"></script>
-<script src="../assets/js/vector-map/map/jquery-jvectormap-au-mill.js"></script>
-<script src="../assets/js/vector-map/map/jquery-jvectormap-chicago-mill-en.js"></script>
-<script src="../assets/js/vector-map/map/jquery-jvectormap-in-mill.js"></script>
-<script src="../assets/js/vector-map/map/jquery-jvectormap-asia-mill.js"></script>
-<script src="../assets/js/datepicker/date-picker/datepicker.js"></script>
-<script src="../assets/js/datepicker/date-picker/datepicker.en.js"></script>
-<script src="../assets/js/datepicker/date-picker/datepicker.custom.js"></script>
-<script src="../assets/js/vector-map/map-vector.js"></script>
-<script src="../assets/js/dashboard/dashboard_3.js"></script>
+{{-- <script src="/assets/js/chart/apex-chart/apex-chart.js"></script>
+<script src="/assets/js/chart/apex-chart/stock-prices.js"></script> --}}
+<script src="/assets/js/prism/prism.min.js"></script>
+<script src="/assets/js/clipboard/clipboard.min.js"></script>
+<script src="/assets/js/custom-card/custom-card.js"></script>
+<script src="/assets/js/vector-map/jquery-jvectormap-2.0.2.min.js"></script>
+<script src="/assets/js/vector-map/map/jquery-jvectormap-world-mill-en.js"></script>
+<script src="/assets/js/vector-map/map/jquery-jvectormap-us-aea-en.js"></script>
+<script src="/assets/js/vector-map/map/jquery-jvectormap-uk-mill-en.js"></script>
+<script src="/assets/js/vector-map/map/jquery-jvectormap-au-mill.js"></script>
+<script src="/assets/js/vector-map/map/jquery-jvectormap-chicago-mill-en.js"></script>
+<script src="/assets/js/vector-map/map/jquery-jvectormap-in-mill.js"></script>
+<script src="/assets/js/vector-map/map/jquery-jvectormap-asia-mill.js"></script>
+<script src="/assets/js/datepicker/date-picker/datepicker.js"></script>
+<script src="/assets/js/datepicker/date-picker/datepicker.en.js"></script>
+<script src="/assets/js/datepicker/date-picker/datepicker.custom.js"></script>
+<script src="/assets/js/vector-map/map-vector.js"></script>
+<script src="/assets/js/dashboard/dashboard_3.js"></script>
 <!-- Plugins JS Ends-->
 <!-- Theme js-->
-<script src="../assets/js/theme-customizer/customizer.js"></script>
-<script src="../assets/js/datatable/datatables/jquery.dataTables.min.js"></script>
-<script src="../assets/js/datatable/datatables/datatable.custom.js"></script>
-<script src="../assets/js/script.js"></script>
+<script src="/assets/js/theme-customizer/customizer.js"></script>
+<script src="/assets/js/datatable/datatables/jquery.dataTables.min.js"></script>
+<script src="/assets/js/datatable/datatables/datatable.custom.js"></script>
+<script src="/assets/js/script.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-<script src="../assets/js/tooltip-init.js"></script>
-<script src="../assets/js/sweet-alert/sweetalert.min.js"></script>
-<script src="../assets/js/sweet-alert/app.js"></script>
+<script src="/assets/js/tooltip-init.js"></script>
+<script src="/assets/js/sweet-alert/sweetalert.min.js"></script>
+<script src="/assets/js/sweet-alert/app.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 
@@ -349,6 +349,7 @@ $('#search-bar').on('input', debounce(function() {
             },
 
             success: function(response) {
+                // console.log(response.data);return false;
                 if (response.status === true && Array.isArray(response.data)) {
 
                     let universities = response.data;

@@ -40,6 +40,10 @@
                                 <li><a href="{{ route('sample.page') }}"
                                         class="{{ request()->routeIs('sample.page') ? 'active' : '' }}">Sample Page</a>
                                 </li>
+                                <li><a href="{{ route('university-erp.index') }}"
+                                        class="{{ request()->routeIs('university-erp.*') ? 'active' : '' }}">ERP
+                                        University</a></li>
+                                <li>
                             </ul>
                         </li>
 
@@ -61,23 +65,40 @@
                                         class="{{ request()->routeIs('users.*') ? 'active' : '' }}">Users</a></li>
                             </ul>
                         </li>
-                        <li class="dropdown">
-                            <a class="nav-link menu-title" href="javascript:void(0)">
-                                <i data-feather="users"></i>
-                                <span>ERP's</span>
-                            </a>
-                            <ul class="nav-submenu menu-content">
-                                <li><a href="{{ route('university-erp.index') }}"
-                                        class="{{ request()->routeIs('university-erp.*') ? 'active' : '' }}">ERP
-                                        University</a></li>
-                                <li>
-                                    <a
-                                        href="{{ route('services.handle', ['method' => 'students', 'uni_id' => session('uni_id')]) }}">
-                                        Students
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
+                        @if (session()->has('uni_id'))
+                            <li class="dropdown">
+                                <a class="nav-link menu-title" href="javascript:void(0)">
+                                    <i data-feather="users"></i>
+                                    <span>ERP's</span>
+                                </a>
+                                <ul class="nav-submenu menu-content">
+                                    <li>
+                                        <a
+                                            href="{{ route('services.handle', ['method' => 'students', 'uni_id' => session('uni_id')]) }}">
+                                            Students
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a
+                                            href="{{ route('services.handle', ['method' => 'users', 'uni_id' => session('uni_id')]) }}">
+                                            Users
+                                        </a>
+                                    </li>
+                                     <li>
+                                        <a
+                                            href="{{ route('services.handle', ['method' => 'wallet', 'uni_id' => session('uni_id')]) }}">
+                                            Wallet
+                                        </a>
+                                    </li>
+                                     <li>
+                                        <a
+                                            href="{{ route('services.handle', ['method' => 'ledger', 'uni_id' => session('uni_id')]) }}">
+                                            Students Ledegers
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                        @endif
 
                     </ul>
                 </div>
