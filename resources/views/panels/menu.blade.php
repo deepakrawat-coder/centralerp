@@ -26,6 +26,9 @@
         </div>
         <div class="nav-right col pull-right right-menu">
             <ul class="nav-menus">
+                <li>
+                    <button class="btn btn-primary rounded-pill px-2 py-1 fs-6" onclick="loadUniversities({{ session()->get('University_table_id') }})"><i class="ri-swap-3-fill "></i> Change university</button>
+                </li>
                 {{-- <li class="onhover-dropdown">
                 <div class="notification-box"><i data-feather="shopping-bag"></i><span class="badge badge-pill badge-secondary">4</span></div>
                 <div class="notification-dropdown cart onhover-show-div">

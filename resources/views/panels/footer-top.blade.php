@@ -300,7 +300,6 @@ $('#search-bar').on('input', debounce(function() {
             timeout = setTimeout(() => func.apply(context, args), wait);
         };
     }
-
     $('#search-bar').on('input', debounce(function() {
         let query = $(this).val().trim();
 
@@ -333,10 +332,73 @@ $('#search-bar').on('input', debounce(function() {
             }
         });
     }, 300));
-    
-    $(document).on('click', '.erp-item', function() {
-        let erpId = $(this).data('id');
+    // $(document).on('click', '.erp-item', function() {
+    //     let erpId = $(this).data('id');
 
+    //     $.ajax({
+    //         url: "/services/university-erp/0",
+    //         type: "GET",
+    //         data: {
+    //             id: erpId
+    //         },
+
+    //         beforeSend: function() {
+    //             toastr.info("Fetching live URL...");
+    //         },
+
+    //         success: function(response) {
+    //             // console.log(response.data);return false;
+    //             if (response.status === true && Array.isArray(response.data)) {
+
+    //                 let universities = response.data;
+    //                 let liveUrl = response.live_url.replace(/\/$/, '');
+
+    //                 $('#erpModalLabel').text('Select University');
+    //                 $('#erpModalBody').html('');
+
+    //                 let html = `<div class="row justify-content-center">`;
+
+    //                 universities.forEach(function(uni) {
+
+    //                     let logo = uni.Logo ?
+    //                         liveUrl + uni.Logo :
+    //                         '/assets/images/default.png';
+
+    //                     html += `
+    //                     <div class="col-md-4 text-center mb-3">
+    //                         <div class="card erp-university-card"
+    //                              data-id="${uni.ID}"
+    //                              data-live-url="${liveUrl}"                                 
+    //                              style="cursor:pointer;">
+    //                             <div class="card-body">
+    //                                 <img src="${logo}" class="img-fluid mb-2" style="max-height:90px;">
+    //                                 <p class="mb-0">
+    //                                     <strong>${uni.Short_Name}</strong><br>
+    //                                     <small>(${uni.Vertical})</small>
+    //                                 </p>
+    //                             </div>
+    //                         </div>
+    //                     </div>
+    //                 `;
+    //                 });
+
+    //                 html += `</div>`;
+    //                 $('#erpModalBody').html(html);
+
+    //                 // 🔥 SHOW MODAL
+    //                 new bootstrap.Modal(document.getElementById('erpModal')).show();
+
+    //             } else {
+    //                 toastr.error("No universities found!");
+    //             }
+    //         },
+
+    //         error: function() {
+    //             toastr.error("Something went wrong!");
+    //         }
+    //     });
+    // });
+    function loadUniversities(erpId) {
         $.ajax({
             url: "/services/university-erp/0",
             type: "GET",
@@ -344,12 +406,11 @@ $('#search-bar').on('input', debounce(function() {
                 id: erpId
             },
 
-            beforeSend: function() {
-                toastr.info("Fetching live URL...");
-            },
+            // beforeSend: function () {
+            //     toastr.info("Fetching live URL...");
+            // },
 
             success: function(response) {
-                // console.log(response.data);return false;
                 if (response.status === true && Array.isArray(response.data)) {
 
                     let universities = response.data;
@@ -369,9 +430,9 @@ $('#search-bar').on('input', debounce(function() {
                         html += `
                         <div class="col-md-4 text-center mb-3">
                             <div class="card erp-university-card"
-                                 data-id="${uni.ID}"
-                                 data-live-url="${liveUrl}"                                 
-                                 style="cursor:pointer;">
+                                data-id="${uni.ID}"
+                                data-live-url="${liveUrl}"
+                                style="cursor:pointer;">
                                 <div class="card-body">
                                     <img src="${logo}" class="img-fluid mb-2" style="max-height:90px;">
                                     <p class="mb-0">
@@ -387,7 +448,6 @@ $('#search-bar').on('input', debounce(function() {
                     html += `</div>`;
                     $('#erpModalBody').html(html);
 
-                    // 🔥 SHOW MODAL
                     new bootstrap.Modal(document.getElementById('erpModal')).show();
 
                 } else {
@@ -399,26 +459,33 @@ $('#search-bar').on('input', debounce(function() {
                 toastr.error("Something went wrong!");
             }
         });
+    }
+    $(document).on('click', '.erp-item', function() {
+        let erpId = $(this).data('id');
+        loadUniversities(erpId);
     });
     $(document).on('click', '.erp-university-card', function() {
 
         let uniId = $(this).data('id');
         let liveUrl = $(this).data('live-url');
+        filterdata(liveUrl, uniId);
         if (!uniId) {
             toastr.error("University ID missing!");
             return;
         }
 
         $.ajax({
-            url: "/dashboards/"+uniId,
+            url: "/dashboards/" + uniId,
             type: "GET",
             data: {
                 id: uniId,
                 live_url: liveUrl
             },
             success: function(res) {
+
                 if (res.status) {
-                    window.location.href = "/dashboard" ;
+                    $('#students-table').DataTable().ajax.reload();
+                    // window.location.href = "/dashboard";
                 } else {
                     toastr.error(res.message);
                 }
@@ -429,4 +496,149 @@ $('#search-bar').on('input', debounce(function() {
         });
 
     });
+
+
+    // function filterdata(liveUrl, uniId) {
+    //     // consol.log(uniId);
+    //     let method = "students"; // module name
+
+    //     $.ajax({
+    //         url: `/filters`,
+    //         type: "GET",
+    //         dataType: "json",
+    //         data: {
+    //             liveUrl,
+    //             method,
+    //             uniId
+    //         },
+    //         success: function(res) {
+    //             localStorage.removeItem('filters_students');
+    //             if (!res || !res.data) {
+    //                 toastr.error("No filter data found");
+    //                 return;
+    //             }
+
+    //             // ✅ STORE IN LOCAL STORAGE
+    //             localStorage.setItem(
+    //                 'filters_students',
+    //                 JSON.stringify(res.data)
+    //             );
+
+    //         },
+    //         error: function(xhr) {
+    //             console.error(xhr.responseText);
+    //             toastr.error("Something went wrong");
+    //         }
+    //     });
+    // }
+    function filterdata(liveUrl, uniId) {
+        let method = "students";
+
+        // ✅ ALWAYS clear first
+        localStorage.removeItem('filters_students');
+        localStorage.removeItem('filters_users');
+
+        $.ajax({
+            url: `/filters`,
+            type: "GET",
+            dataType: "json",
+            data: {
+                liveUrl: liveUrl,
+                method: method,
+                uniId: uniId
+            },
+            success: function(response) {
+                //  console.log(JSON.stringify(response));
+                //   console.log(response);
+                //    console.log(data);
+                //  return false;
+                if (!response || !response.data) {
+                    toastr.error("No filter data found");
+                    return;
+                }
+
+                // ✅ SET AFTER SUCCESS ONLY
+                localStorage.setItem(
+                    'filters_students',
+                    JSON.stringify(response.data.students)
+                );
+                localStorage.setItem(
+                    'filters_users',
+                    JSON.stringify(response.data.users)
+                );
+            },
+            error: function(xhr) {
+                console.error(xhr.responseText);
+                toastr.error("Something went wrong");
+            }
+        });
+    }
+
+
+
+
+    function changeErpData(erpId) {
+        let erpAccess = 'erpAccess';
+        $.ajax({
+            url: "/services/university-erp/0",
+            type: "GET",
+            data: {
+                id: erpId,
+                indexPage: erpAccess
+            },
+
+            // beforeSend: function () {
+            //     toastr.info("Fetching live URL...");
+            // },
+
+            success: function(response) {
+                if (response.status === true && Array.isArray(response.data)) {
+
+                    let universities = response.data;
+                    let liveUrl = response.live_url.replace(/\/$/, '');
+
+                    $('#erpModalLabel').text('Select University');
+                    $('#erpModalBody').html('');
+
+                    let html = `<div class="row justify-content-center">`;
+
+                    universities.forEach(function(uni) {
+
+                        let logo = uni.Logo ?
+                            liveUrl + uni.Logo :
+                            '/assets/images/default.png';
+
+                        html += `
+                        <div class="col-md-4 text-center mb-3">
+                            <div class="card erp-university-card"
+                                data-id="${uni.ID}"
+                                data-live-url="${liveUrl}"
+                                style="cursor:pointer;">
+                                <div class="card-body">
+                                    <img src="${logo}" class="img-fluid mb-2" style="max-height:90px;">
+                                    <p class="mb-0">
+                                        <strong>${uni.Short_Name}</strong><br>
+                                        <small>(${uni.Vertical})</small>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    });
+
+                    html += `</div>`;
+                    $('#erpModalBody').html(html);
+
+                    new bootstrap.Modal(document.getElementById('erpModal')).show();
+
+                } else {
+                    toastr.error("No universities found!");
+                }
+            },
+
+            error: function() {
+                toastr.error("ERP Configuration is Not Complete");
+            }
+        });
+    }
 </script>

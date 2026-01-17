@@ -10,6 +10,8 @@ class PermissionController extends Controller
 {
     public function index(Request $request)
 {
+    // dd('cdscsdc');
+//  dd(session()->all());
     if ($request->ajax()) {
         $permissions = Permission::all();
         $serial = 1;

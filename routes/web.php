@@ -36,13 +36,13 @@ Route::middleware(['role:Super Admin'])->group(function () {
         ->except(['show']);
     Route::get('university-erp/search', [UniversityErpController::class, 'search'])->name('university-erp.search');
 
-    // Route::get('services/{method}/{uni_id}', [ServiceController::class, 'handle']);
-    // Route::get('services/students/{uni_id}', [ServiceController::class, 'students'])->name('services.students');
     Route::get('services/{method}/{uni_id}', [ServiceController::class, 'handle'])
         ->name('services.handle');
-    // Route::get('/service/university', [ServiceController::class, 'handle']);
     Route::get('dashboards/{uni_id}', [ServiceController::class, 'dashboard'])->name('services.dashboard');
+      Route::get('dashboards', [ServiceController::class, 'dashboard'])->name('services.dashboard');
     Route::get('/services/students/{uni_id}', [ServiceController::class, 'students'])
     ->name('services.students');
+   Route::get('filters', [ServiceController::class, 'filters'])
+    ->name('services.filters');
 
 });

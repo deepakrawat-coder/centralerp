@@ -21,8 +21,15 @@ class UniversityErpController extends Controller
                 'data' => $erps->map(function ($erp) use (&$serial) {
                     $editUrl = route('university-erp.edit', $erp->id);
                     $deleteUrl = route('university-erp.destroy', $erp->id);
-
+                    $indexErpPage='indexErpPage';
                     $action = '
+                        <a onclick="changeErpData('.$erp->id.')"
+                           class="text-primary "
+                           data-bs-toggle="tooltip"
+                           data-bs-placement="top"
+                           title="Change ERP Data">
+                            <i class="ri-swap-3-fill"></i>
+                        </a>
                         <a onclick="edit(\'' . $editUrl . '\', \'modal-md\')" 
                            class="text-warning"
                            data-bs-toggle="tooltip"

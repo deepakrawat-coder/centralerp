@@ -2,14 +2,6 @@
 
 @section('styles')
     <style>
-        /* #student-ledger-table {
-                                            width: max-content !important;
-                                        }
-
-                                        #student-ledger-table thead tr th,
-                                        #student-ledger-table tbody tr td {
-                                            width: max-content !important;
-                                        } */
         #student-ledger-table,
         .dataTables_scrollHeadInner {
             width: max-content !important;
@@ -18,7 +10,7 @@
         #student-ledger-table thead tr th,
         #student-ledger-table tbody tr td {
             width: max-content !important;
-
+            white-space: nowrap;
         }
     </style>
 @endsection
@@ -30,48 +22,23 @@
                 <div class="card-body">
                     <h3 class="mb-4">Student Ledger</h3>
 
-                    {{-- <div class="table-responsive">
+                    <div class="table-responsive">
                         <table id="student-ledger-table" class="display table table-bordered">
                             <thead>
                                 <tr>
                                     <th>#</th>
-                                    <th>Date</th>
                                     <th>Student ID</th>
                                     <th>Student Name</th>
-                                    <th>Father Name</th>
-                                    <th>Duration</th>
-                                    <th>Type</th>
-                                    <th>Fee</th>
-                                    <th>Fee (Without Sharing)</th>
-                                    <th>Center Fee</th>
-                                    <th>Settlement Amount</th>
-                                    <th>Status</th>
-                                    <th>Added For</th>
-                                    <th>Created At</th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
-                    </div> --}}
-                    <div class="table-responsive">
-                        <table id="student-ledger-table" class="display  table table-bordered">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-
-                                    <th>Student ID</th>
-                                    <th>Student Name</th>
-                                    <th>Father Name</th>
+                                    <th>Email</th>
+                                    <th>Contact</th>
                                     <th>Duration</th>
                                     <th>Transaction Date</th>
                                     <th>Transaction ID</th>
-                                    <th>Type</th>
-                                    <th>Source</th>
-                                    <th>Fee</th>
-                                    <th>Center Fee</th>
+                                    <th>Payment Type</th>
+                                    <th>Fee Amount</th>
                                     <th>Settlement Amount</th>
-
-                                    <th>Added For</th>
+                                    <th>Final Amount</th>
+                                    <th>Center</th>
                                     <th>Created At</th>
                                 </tr>
                             </thead>
@@ -84,199 +51,141 @@
         </div>
     </div>
 @endsection
+
 @section('scripts')
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
 
     <script>
         $(document).ready(function() {
-
+            const uni_id = "{{ session('uni_id') }}";
             const table = $('#student-ledger-table').DataTable({
-                data: @json($studentLedgers),
-                pageLength: 25,
-                responsive: false,
+                processing: true,
+                serverSide: true,
                 scrollX: true,
                 autoWidth: false,
-                ordering: true,
-                // order: [[5, 'desc']], // Date column
+                pageLength: 25,
+
+                ajax: {
+                    url: `/services/ledger/{{ session('uni_id') }}`,
+                    type: "GET"
+                },
 
                 columns: [{
-                        data: null,
-                        width: '5%'
+                        data: null
                     },
 
                     {
-                        data: 'Unique_ID',
-                        width: '12%',
+                        data: 'Student_ID'
+                    },
+
+                    {
+                        data: 'StudentName'
+                    },
+
+                    {
+                        data: 'Email',
                         defaultContent: '—'
                     },
 
                     {
-                        data: 'StudentName',
-                        width: '25%',
-                        defaultContent: '—'
-                    },
-
-                    {
-                        data: 'Father_Name',
-                        width: '20%',
+                        data: 'Contact',
                         defaultContent: '—'
                     },
 
                     {
                         data: 'Duration',
-                        width: '10%',
                         defaultContent: '—'
                     },
 
                     {
                         data: 'Date',
-                        width: '12%',
-                        render: function(date) {
-                            return date ? new Date(date).toLocaleDateString('en-GB') : '—';
-                        }
+                        render: d => d ? new Date(d).toLocaleDateString('en-GB') : '—'
                     },
 
                     {
                         data: 'Transaction_ID',
-                        width: '12%',
-                        render: function(transactionID) {
-                            return transactionID ? `<p>${transactionID}</p>` : '';
-                        }
+                        render: d => d ? d : '—'
                     },
 
                     {
-                        data: 'Type',
-                        width: '8%',
+                        data: 'PaymentType',
                         render: function(type) {
-                            return type == 1 ?
-                                '<span class="badge bg-primary">Debit</span>' :
-                                '<span class="badge bg-danger">Credit</span>';
-                        }
-                    },
-
-                    {
-                        data: 'Source',
-                        width: '12%',
-                        render: function(source) {
-                            if (!source) return '—';
-
-                            switch (source) {
-                                case 'Offline':
-                                    return '<span class="badge bg-secondary text-white">Offline</span>';
-
-                                case 'Online':
-                                    return '<span class="badge bg-info text-white">Online</span>';
-
-                                case 'Wallet':
-                                    return '<span class="badge bg-warning text-white">Wallet</span>';
-
-                                case 'Registration Fee':
-                                    return '<span class="badge bg-primary text-white">Registration Fee</span>';
-
-                                case 'Late Fee':
-                                    return '<span class="badge bg-danger text-white">Late Fee</span>';
-
+                            switch (type) {
+                                case 'Course Fee':
+                                    return '<span class="badge bg-primary">Course Fee</span>';
+                                case 'Offline Student Fee':
+                                    return '<span class="badge bg-secondary">Offline</span>';
+                                case 'Wallet Payment':
+                                    return '<span class="badge bg-warning text-dark">Wallet</span>';
                                 default:
-                                    return `<span class="badge bg-dark text-white">${source}</span>`;
+                                    return '<span class="badge bg-dark">Unknown</span>';
                             }
                         }
                     },
+
                     {
-                        data: null,
-                        width: '12%',
-                        render: function(row) {
+                        data: 'Fee',
+                        render: function(v, type, row) {
 
-                            // 🔥 Decide source
-                            let rawValue = (row.Type == 1) ? row.Fee : row.Amount;
-
-                            if (rawValue === null || rawValue === '') {
-                                return '';
+                            // Type 1 → normal course fee
+                            if (row.Type == 1) {
+                                return v ?
+                                    `₹${parseFloat(v).toLocaleString('en-IN')}` :
+                                    '—';
                             }
 
-                            // 🔍 If JSON string → convert to readable string
-                            if (typeof rawValue === 'string') {
-                                try {
-                                    const parsed = JSON.parse(rawValue);
+                            // Type 2 & 3 → JSON like {"Paid":-5000}
+                            if (row.Type == 2 || row.Type == 3) {
+                                if (!v) return '—';
 
-                                    // If JSON is array/object → join values
-                                    if (typeof parsed === 'object') {
-                                        return Object.values(parsed)
-                                            .map(val =>
-                                                `₹${parseFloat(val).toLocaleString('en-IN')}`)
-                                            .join('<br>');
+                                try {
+                                    const parsed = JSON.parse(v);
+
+                                    if (parsed.Paid !== undefined) {
+                                        return `₹${Math.abs(parsed.Paid).toLocaleString('en-IN')}`;
                                     }
                                 } catch (e) {
-                                    // Not JSON → continue as normal string
+                                    return '—';
                                 }
                             }
 
-                            // 💰 Normal number handling
-                            if (!isNaN(rawValue)) {
-                                return `₹${parseFloat(rawValue).toLocaleString('en-IN')}`;
-                            }
-
-                            return '';
-                        }
-                    },
-
-
-
-                    {
-                        data: 'Center_Fee',
-                        width: '14%',
-                        render: function(fee) {
-                            return fee && !isNaN(fee) ?
-                                `₹${parseFloat(fee).toLocaleString('en-IN')}` :
-                                '—';
+                            return '—';
                         }
                     },
 
                     {
                         data: 'Settlement_Amount',
-                        width: '14%',
-                        render: function(amt) {
-                            return amt && !isNaN(amt) ?
-                                `₹${parseFloat(amt).toLocaleString('en-IN')}` :
-                                '—';
-                        }
+                        render: v => v ? `₹${parseFloat(v).toLocaleString('en-IN')}` : '—'
                     },
 
-
+                    {
+                        data: 'Amount',
+                        render: v => v ? `₹${parseFloat(v).toLocaleString('en-IN')}` : '—'
+                    },
 
                     {
-                        data: 'Added_For_User',
-                        width: '25%',
-                        defaultContent: '—'
+                        data: 'CenterName'
                     },
 
                     {
                         data: 'Created_At',
-                        width: '15%',
-                        render: function(date) {
-                            return date ? new Date(date).toLocaleString('en-GB') : '—';
-                        }
+                        render: d => d ? new Date(d).toLocaleString('en-GB') : '—'
                     }
                 ],
 
                 language: {
-                    search: "Search ledger:",
+                    search: "Search Ledger:",
                     lengthMenu: "Show _MENU_ records"
                 }
             });
 
-            // 🔢 Auto serial number (search / sort / pagination safe)
+            // 🔢 Auto serial number
             table.on('order.dt search.dt draw.dt', function() {
-                table.column(0, {
-                        search: 'applied',
-                        order: 'applied'
-                    })
-                    .nodes()
-                    .each(function(cell, i) {
-                        cell.innerHTML = i + 1;
-                    });
+                table.column(0).nodes().each(function(cell, i) {
+                    cell.innerHTML = i + 1;
+                });
             }).draw();
-
         });
     </script>
 @endsection
