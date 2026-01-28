@@ -2,18 +2,18 @@
     <!-- Page Sidebar Start-->
     <header class="main-nav">
         <div class="logo-wrapper">
-            <a href="{{ url('/') }}">
-                <img class="img-fluid" src="{{ asset('assets/images/logo/logo.png') }}" alt="Logo">
+            <a href="{{ url('/dashboard') }}">
+                <img class="img-fluid" src="{{ asset('assets/images/panel-image/updated-logo.webp') }}" alt="Logo" width="150" height="150">
             </a>
         </div>
         <div class="logo-icon-wrapper">
-            <a href="{{ url('/') }}">
-                <img class="img-fluid" src="{{ asset('assets/images/logo/logo-icon.png') }}" alt="Logo Icon">
+            <a href="{{ url('/dashboard') }}">
+                <img class="img-fluid" src="{{ asset('assets/images/panel-image/updated-logo.webp') }}" alt="Logo Icon" width="150" height="150">
             </a>
         </div>
         <div class="morden-logo">
-            <a href="{{ url('/') }}">
-                <img class="img-fluid" src="{{ asset('assets/images/logo/morden-logo.png') }}" alt="Modern Logo">
+            <a href="{{ url('/dashboard') }}">
+                <img class="img-fluid" src="{{ asset('assets/images/panel-image/updated-logo.webp') }}" alt="Modern Logo" width="150" height="150">
             </a>
         </div>
 

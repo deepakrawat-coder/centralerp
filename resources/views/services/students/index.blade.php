@@ -56,13 +56,17 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h3 class="mb-0">Students List</h3>
-                        <div>
+                        <div class="d-flex flex-row">
                             <button id="toggle-filters" class="btn btn-primary btn-sm me-2">
                                 <i class="fa fa-filter"></i> Show Filters
                             </button>
-                            
+                            <button class="border-0 shadow-none bg-white fs-3 text-success"><i class="ri-file-excel-2-fill"
+                                    onclick="excelData('students','{{ session('uni_id') }}','{{ session('live_url') }}')"></i></button>
                         </div>
                     </div>
+                    {{-- @php
+                        dd(session()->all());
+                    @endphp --}}
 
                     <!-- Filter Section (Hidden by Default) -->
                     <div class="filter-section" id="filterSection">
@@ -162,9 +166,7 @@
 
     <script>
         let studentsTable;
-       const uni_id = "{{ session('uni_id') }}";
-
-
+        const uni_id = "{{ session('uni_id') }}";
         $(document).ready(function() {
             /* =============================
                TOGGLE FILTER SECTION
@@ -177,7 +179,6 @@
                     $(this).html('<i class="fa fa-filter"></i> Show Filters');
                 }
             });
-
             /* =============================
                INITIALIZE DATE RANGE PICKERS
             ============================= */
@@ -233,7 +234,6 @@
                     }
                 });
             }
-
             /* =============================
                LOAD FILTER OPTIONS FROM LOCALSTORAGE
             ============================= */
@@ -303,7 +303,6 @@
                     console.error('Error loading filter data:', error);
                 }
             }
-
             /* =============================
                DATATABLE INITIALIZATION
             ============================= */
@@ -311,7 +310,7 @@
                 processing: true,
                 serverSide: true,
                 responsive: true,
-                pageLength: 25,
+                // pageLength: 25,
                 lengthMenu: [
                     [10, 25, 50, 100, -1],
                     [10, 25, 50, 100, "All"]
@@ -320,46 +319,47 @@
                     url: `/services/students/${uni_id}`,
                     type: "GET",
                     data: function(d) {
-                        // Parse date range strings
-                        const processDate = $('#processed_by_center').val();
-                        const paymentDate = $('#payment_received').val();
-                        const documentDate = $('#document_received').val();
+                        function splitDate(value) {
+                            if (!value) return {
+                                start: '',
+                                end: ''
+                            };
 
-                        let processStart = '',
-                            processEnd = '';
-                        let paymentStart = '',
-                            paymentEnd = '';
-                        let documentStart = '',
-                            documentEnd = '';
+                            // normalize separators: "," or " - "
+                            let parts = value.includes(',') ?
+                                value.split(',') :
+                                value.includes(' - ') ?
+                                value.split(' - ') : [value];
 
-                        if (processDate && processDate.includes(',')) {
-                            const parts = processDate.split(',').map(v => v.trim());
-                            processStart = parts[0] || '';
-                            processEnd = parts[1] || '';
+                            parts = parts.map(v => v.trim());
+
+                            return {
+                                start: parts[0] || '',
+                                end: parts[1] || '' // single date → empty
+                            };
                         }
 
-                        if (paymentDate && paymentDate.includes(',')) {
-                            const parts = paymentDate.split(',').map(v => v.trim());
-                            paymentStart = parts[0] || '';
-                            paymentEnd = parts[1] || '';
-                        }
+                        // ---- usage ----
+                        const process = splitDate($('#processed_by_center').val());
+                        const payment = splitDate($('#payment_received').val());
+                        const document = splitDate($('#document_received').val());
 
-                        if (documentDate && documentDate.includes(',')) {
-                            const parts = documentDate.split(',').map(v => v.trim());
-                            documentStart = parts[0] || '';
-                            documentEnd = parts[1] || '';
-                        }
+                        let processStart = process.start;
+                        let processEnd = process.end;
 
-                        // console.log(processStart, processEnd);
-                        // console.log(paymentStart, paymentEnd);
-                        // console.log(documentStart, documentEnd);
+                        let paymentStart = payment.start;
+                        let paymentEnd = payment.end;
+
+                        let documentStart = document.start;
+                        let documentEnd = document.end;
+
 
 
                         // Send filter parameters
                         d.filters = {
                             student_id: $('#student_id').val(),
-                            processed_by_center_start: processStart,
-                            processed_by_center_end: processEnd,
+                            processed_by_center_start: processStart ?? null,
+                            processed_by_center_end: processEnd ?? null,
                             payment_received_start: paymentStart,
                             payment_received_end: paymentEnd,
                             document_received_start: documentStart,
@@ -483,7 +483,6 @@
                     processing: '<i class="fa fa-spinner fa-spin"></i> Loading...'
                 }
             });
-
             /* =============================
                FILTER FUNCTIONS
             ============================= */
@@ -492,23 +491,20 @@
             $('#apply-filters').on('click', function() {
                 applyFilters();
             });
-
             // Clear Filters Button
             $('#clear-filters').on('click', function() {
                 clearFilters();
-            });           
-
+            });
             // Apply filters when date range is selected
             $('#processed_by_center, #payment_received, #document_received').on('apply.daterangepicker',
-        function() {
-                applyFilters();
-            });
+                function() {
+                    applyFilters();
+                });
 
             // Apply filters function
             function applyFilters() {
                 studentsTable.ajax.reload();
             }
-
             // Clear filters function
             function clearFilters() {
                 $('#student_id').val('');
@@ -528,19 +524,16 @@
                 // Apply cleared filters
                 applyFilters();
             }
-
             // Auto-apply filters on Enter key in search fields
             $('#student_id').on('keyup', function(e) {
                 if (e.keyCode === 13) { // Enter key
                     applyFilters();
                 }
             });
-
             // Auto-apply filters when select2 changes
             $('#courses, #users').on('change', function() {
                 applyFilters();
             });
-
             /* =============================
                INITIALIZE EVERYTHING
             ============================= */
@@ -550,9 +543,14 @@
                 // Initial DataTable load
                 studentsTable.ajax.reload();
             }
-
             // Run initialization
             init();
         });
+
+        // function excelData(method, uni_id, live_url) {          
+
+        //     window.location.href =
+        //         live_url + '/app/process/index?method=' + method + '&uni_id=' + uni_id;
+        // }
     </script>
 @endsection

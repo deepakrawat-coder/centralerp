@@ -39,10 +39,14 @@ Route::middleware(['role:Super Admin'])->group(function () {
     Route::get('services/{method}/{uni_id}', [ServiceController::class, 'handle'])
         ->name('services.handle');
     Route::get('dashboards/{uni_id}', [ServiceController::class, 'dashboard'])->name('services.dashboard');
-      Route::get('dashboards', [ServiceController::class, 'dashboard'])->name('services.dashboard');
-    Route::get('/services/students/{uni_id}', [ServiceController::class, 'students'])
-    ->name('services.students');
-   Route::get('filters', [ServiceController::class, 'filters'])
-    ->name('services.filters');
+    Route::get('dashboards', [ServiceController::class, 'dashboard'])->name('services.dashboard');
+    // Route::get('/services/students/{uni_id}', [ServiceController::class, 'students'])
+    //     ->name('services.students');
+    Route::get('filters', [ServiceController::class, 'filters'])
+        ->name('services.filters');
+    Route::post('/logout', [ServiceController::class, 'logout'])->name('logout');
+    Route::post('/export/excel', [ServiceController::class, 'exportExcel'])
+        ->name('export.excel');
 
+    // Route::view('/login', 'login.index')->name('login.index');
 });

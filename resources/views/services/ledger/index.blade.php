@@ -12,7 +12,19 @@
             width: max-content !important;
             white-space: nowrap;
         }
+
+        .filter-section {
+            display: none;
+            margin-bottom: 15px;
+        }
+
+        .filter-section.show {
+            display: block;
+        }
     </style>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 @endsection
 
 @section('content')
@@ -20,10 +32,50 @@
         <div class="container-fluid">
             <div class="card">
                 <div class="card-body">
-                    <h3 class="mb-4">Student Ledger</h3>
 
+                    {{-- HEADER --}}
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h3 class="mb-0">Student Ledger</h3>
+                        <button id="toggle-filters" class="btn btn-primary btn-sm">
+                            <i class="fa fa-filter"></i> Show Filters
+                        </button>
+                    </div>
+
+                    {{-- ================= FILTER SECTION ================= --}}
+                    <div class="filter-section" id="filterSection">
+                        <div class="row align-items-end">
+
+                            <div class="col-lg-3 mb-2">
+                                <input type="text" class="datepicker-here form-control digits" data-multiple-dates="3"
+                                    data-multiple-dates-separator=", "data-language="en" id="transaction_date"
+                                    placeholder="Transaction Date Range">
+                            </div>
+
+                            <div class="col-lg-3 mb-2">
+                                <input type="text" id="transaction_id" class="form-control" placeholder="Transaction ID">
+                            </div>
+
+                            <div class="col-lg-4 mb-2">
+                                <select id="course_id" class="form-control">
+                                    <option value="">Search Course</option>
+                                </select>
+                            </div>
+
+                            <div class="col-lg-2 mb-2 text-end">
+                                <button id="apply-ledger-filters" class="btn btn-success btn-sm">
+                                    <i class="fa fa-check"></i> Apply
+                                </button>
+                                <button id="clear-ledger-filters" class="btn btn-danger btn-sm ms-2">
+                                    <i class="fa fa-times"></i> Clear
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    {{-- ================= TABLE ================= --}}
                     <div class="table-responsive">
-                        <table id="student-ledger-table" class="display table table-bordered">
+                        <table id="student-ledger-table" class="display table table-bordered w-100">
                             <thead>
                                 <tr>
                                     <th>#</th>
@@ -56,43 +108,197 @@
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
 
+    <script src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
     <script>
         $(document).ready(function() {
+
             const uni_id = "{{ session('uni_id') }}";
-            const table = $('#student-ledger-table').DataTable({
+
+            // =============================
+            // Toggle Filters
+            // =============================
+            $('#toggle-filters').on('click', function() {
+                $('#filterSection').toggleClass('show');
+                $(this).html($('#filterSection').hasClass('show') ?
+                    '<i class="fa fa-filter"></i> Hide Filters' :
+                    '<i class="fa fa-filter"></i> Show Filters');
+            });
+
+            // // =============================
+            // // Date Range Picker
+            // // =============================
+            // $('#transaction_date').daterangepicker({
+            //     autoUpdateInput: false,
+            //     locale: {
+            //         format: 'YYYY-MM-DD',
+            //         cancelLabel: 'Clear'
+            //     }
+            // });
+
+            // $('#transaction_date').on('apply.daterangepicker', function(ev, picker) {
+            //     $(this).val(
+            //         picker.startDate.format('YYYY-MM-DD') +
+            //         ', ' +
+            //         picker.endDate.format('YYYY-MM-DD')
+            //     );
+            // });
+
+            // $('#transaction_date').on('cancel.daterangepicker', function() {
+            //     $(this).val('');
+            // });
+
+            // =============================
+            // Load Course Dropdown (localStorage)
+            // =============================
+            // function loadLedgerCourseFilter() {
+
+            //     const stored = localStorage.getItem('ledgers');
+            //     if (!stored) return;
+
+            //     const parsed = JSON.parse(stored);
+            //     const list = parsed.ledgersUsers || [];
+
+            //     const $select = $('#course_id');
+            //     $select.html('<option value="">Search Course</option>');
+
+            //     const added = new Set();
+
+            //     list.forEach(item => {
+            //         if (!item.Course_ID || added.has(item.Course_ID)) return;
+            //         added.add(item.Course_ID);
+
+            //         $select.append(
+            //             `<option value="${item.Course_ID}">
+        //         ${item.Course_Name ?? 'Unknown Course'}
+        //     </option>`
+            //         );
+            //     });
+
+            //     $select.select2({
+            //         placeholder: 'Search Course',
+            //         allowClear: true,
+            //         width: '100%'
+            //     });
+            // }
+            function loadLedgerUserFilter() {
+
+                const stored = localStorage.getItem('ledgers');
+                if (!stored) return;
+
+                const parsed = JSON.parse(stored);
+                const list = parsed.ledgersUsers || [];
+
+                const $select = $('#course_id'); // (ID can stay same if backend expects it)
+                $select.html('<option value="">Search User</option>');
+
+                const added = new Set();
+
+                list.forEach(item => {
+                    if (!item.ID || added.has(item.ID)) return;
+
+                    added.add(item.ID);
+
+                    $select.append(`
+            <option value="${item.ID}">
+                ${item.Name ?? 'Unknown User'}
+            </option>
+        `);
+                });
+
+                $select.select2({
+                    placeholder: 'Search User',
+                    allowClear: true,
+                    width: '100%'
+                });
+            }
+
+
+            loadLedgerUserFilter();
+
+            // =============================
+            // DataTable
+            // =============================
+            let table = $('#student-ledger-table').DataTable({
                 processing: true,
                 serverSide: true,
                 scrollX: true,
-                autoWidth: false,
-                pageLength: 25,
+
 
                 ajax: {
-                    url: `/services/ledger/{{ session('uni_id') }}`,
-                    type: "GET"
+                    url: `/services/ledger/${uni_id}`,
+                    type: "GET",
+                    data: function(d) {
+
+                        // let range = $('#transaction_date').val() || '';
+                        // let start = '',
+                        //     end = '';
+
+                        // if (range.includes(',')) {
+                        //     let parts = range.split(',').map(v => v.trim());
+                        //     start = parts[0];
+                        //     end = parts[1];
+                        // }
+
+                        // d.filters = {
+                        //     transaction_start: start,
+                        //     transaction_end: end,
+                        //     transaction_id: $('#transaction_id').val(),
+                        //     course_id: $('#course_id').val()
+                        // };
+                        let range = $('#transaction_date').val() || '';
+                        let start = '',
+                            end = '';
+
+                        if (range) {
+                            if (range.includes(',')) {
+                                // date range selected
+                                let parts = range.split(',').map(v => v.trim());
+                                start = parts[0] || '';
+                                end = parts[1] || parts[0]; // safety
+                            } else {
+                                // single date selected
+                                start = range.trim();
+
+                            }
+                        }
+
+                        d.filters = {
+                            transaction_start: start,
+                            transaction_end: end,
+                            transaction_id: $('#transaction_id').val(),
+                            users_id: $('#course_id').val()
+                        };
+
+                    }
                 },
 
-                columns: [{
-                        data: null
-                    },
-
+                columns: [
+                    // {
+                    //     data: null,
+                    // }
                     {
-                        data: 'Student_ID'
+                        data: 'DT_RowIndex',
+                        orderable: false,
+                        searchable: false
                     },
-
+                    {
+                        data: 'Unique_ID'
+                    },
                     {
                         data: 'StudentName'
                     },
-
                     {
                         data: 'Email',
                         defaultContent: '—'
                     },
-
                     {
                         data: 'Contact',
                         defaultContent: '—'
                     },
-
                     {
                         data: 'Duration',
                         defaultContent: '—'
@@ -105,65 +311,62 @@
 
                     {
                         data: 'Transaction_ID',
-                        render: d => d ? d : '—'
+                        defaultContent: '—'
                     },
 
                     {
                         data: 'PaymentType',
                         render: function(type) {
-                            switch (type) {
-                                case 'Course Fee':
-                                    return '<span class="badge bg-primary">Course Fee</span>';
-                                case 'Offline Student Fee':
-                                    return '<span class="badge bg-secondary">Offline</span>';
-                                case 'Wallet Payment':
-                                    return '<span class="badge bg-warning text-dark">Wallet</span>';
-                                default:
-                                    return '<span class="badge bg-dark">Unknown</span>';
-                            }
+                            if (type === 'Course Fee')
+                                return '<span class="badge bg-primary">Course Fee</span>';
+                            if (type === 'Offline Student Fee')
+                                return '<span class="badge bg-secondary">Offline</span>';
+                            if (type === 'Wallet Payment')
+                                return '<span class="badge bg-warning text-dark">Wallet</span>';
+                            return '<span class="badge bg-dark">Unknown</span>';
                         }
                     },
 
+                    // {
+                    //     data: 'Fee',
+                    //     render: function(v, type, row) {
+
+                    //         if (v == null || v === '') return '—';
+
+                    //         // Wallet Payment (JSON)
+                    //         if (row.PaymentType === 'Wallet Payment' && typeof v === 'string') {
+                    //             try {
+                    //                 const parsed = JSON.parse(
+                    //                     v.includes('&quot;') ? v.replace(/&quot;/g, '"')
+                    //                     .replace(/&#39;/g, "'") : v
+                    //                 );
+
+                    //                 return (parsed?.Paid !== undefined && !isNaN(parsed.Paid)) ?
+                    //                     `₹${Math.abs(+parsed.Paid).toLocaleString('en-IN')}` :
+                    //                     '—';
+                    //             } catch {
+                    //                 return '—';
+                    //             }
+                    //         }
+
+                    //         // Normal numeric fee
+                    //         return !isNaN(v) ?
+                    //             `₹${(+v).toLocaleString('en-IN')}` :
+                    //             '—';
+                    //     }
+                    // },
                     {
                         data: 'Fee',
-                        render: function(v, type, row) {
-
-                            // Type 1 → normal course fee
-                            if (row.Type == 1) {
-                                return v ?
-                                    `₹${parseFloat(v).toLocaleString('en-IN')}` :
-                                    '—';
-                            }
-
-                            // Type 2 & 3 → JSON like {"Paid":-5000}
-                            if (row.Type == 2 || row.Type == 3) {
-                                if (!v) return '—';
-
-                                try {
-                                    const parsed = JSON.parse(v);
-
-                                    if (parsed.Paid !== undefined) {
-                                        return `₹${Math.abs(parsed.Paid).toLocaleString('en-IN')}`;
-                                    }
-                                } catch (e) {
-                                    return '—';
-                                }
-                            }
-
-                            return '—';
-                        }
+                        
                     },
-
                     {
                         data: 'Settlement_Amount',
                         render: v => v ? `₹${parseFloat(v).toLocaleString('en-IN')}` : '—'
                     },
-
                     {
                         data: 'Amount',
                         render: v => v ? `₹${parseFloat(v).toLocaleString('en-IN')}` : '—'
                     },
-
                     {
                         data: 'CenterName'
                     },
@@ -180,12 +383,30 @@
                 }
             });
 
-            // 🔢 Auto serial number
-            table.on('order.dt search.dt draw.dt', function() {
-                table.column(0).nodes().each(function(cell, i) {
-                    cell.innerHTML = i + 1;
+            // =============================
+            // Serial Number (pagination-safe)
+            // =============================
+            table.on('draw.dt', function() {
+                let info = table.page.info();
+                table.column(0, {
+                    page: 'current'
+                }).nodes().each(function(cell, i) {
+                    cell.innerHTML = info.start + i + 1;
                 });
-            }).draw();
+            });
+
+            // =============================
+            // Filter Actions
+            // =============================
+            $('#apply-ledger-filters').on('click', () => table.ajax.reload());
+
+            $('#clear-ledger-filters').on('click', function() {
+                $('#transaction_date').val('');
+                $('#transaction_id').val('');
+                $('#course_id').val('').trigger('change');
+                table.ajax.reload();
+            });
+
         });
     </script>
 @endsection

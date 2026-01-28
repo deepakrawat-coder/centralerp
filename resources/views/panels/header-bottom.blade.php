@@ -1,6 +1,5 @@
   </head>
-  <body>
-      <!-- Loader starts-->
+  <body>     
     <div class="loader-wrapper">
       <div class="main-loader">
         <div class="bar-0"></div>
@@ -11,6 +10,4 @@
       </div>
       <div class="loading">Loading...    </div>
     </div>
-    <!-- Loader ends-->
-    <!-- page-wrapper Start-->
     <div class="page-wrapper compact-wrapper" id="pageWrapper">
