@@ -31,9 +31,11 @@ class ServiceController extends Controller
                 ->firstOrFail();
             Session::put('live_url', $erp->live_url);
             $baseUrl = rtrim($erp->live_url, '/');
+           
         } else if (Session::get('uni_id')) {
             $live_url = Session::get('live_url');
             $baseUrl = rtrim($live_url, '/');
+            
         } else {
             Session::forget('University_table_id');
 
@@ -143,6 +145,7 @@ class ServiceController extends Controller
             $endpoint .= '?' . http_build_query($query);
             // dd($endpoint);
         } else {
+            // dd(session::get());
             $endpoint = $baseUrl . '/app/process/index';
         }
 
@@ -510,74 +513,8 @@ class ServiceController extends Controller
                 // Prepare DataTables response - MATCH ALL 14 FRONTEND COLUMNS
                 // =============================
                 $data = [];
-                $counter = $start + 1;
-
-                // foreach ($paginatedData as $row) {
-                //     // Handle Fee field (could be JSON for Wallet Payment)
-                //     $feeDisplay = '—';
-                //     $feeRaw = $row['Fee'] ?? null;
-
-                //     if ($row['PaymentType'] === 'Wallet Payment' && !empty($feeRaw) && is_string($feeRaw)) {
-                //         try {
-                //             $parsedFee = json_decode($feeRaw, true);
-                //             if (isset($parsedFee['Paid']) && !is_nan($parsedFee['Paid'])) {
-                //                 $feeDisplay = '₹' . number_format(abs($parsedFee['Paid']), 2);
-                //             }
-                //         } catch (\Exception $e) {
-                //             $feeDisplay = '—';
-                //         }
-                //     } elseif (!empty($feeRaw) && is_numeric($feeRaw)) {
-                //         $feeDisplay = '₹' . number_format($feeRaw, 2);
-                //     }
-
-                //     $data[] = [
-                //         // Column 0: DT_RowIndex (index)
-                //         'DT_RowIndex' => $counter++,
-
-                //         // Column 1: Unique_ID
-                //         'Unique_ID' => $row['Unique_ID'] ?? $row['Student_ID'] ?? '',
-
-                //         // Column 2: StudentName
-                //         'StudentName' => $row['StudentName'] ?? $row['Student_Name'] ?? '',
-
-                //         // Column 3: Email
-                //         'Email' => $row['Email'] ?? '',
-
-                //         // Column 4: Contact
-                //         'Contact' => $row['Contact'] ?? $row['Phone'] ?? '',
-
-                //         // Column 5: Duration
-                //         'Duration' => $row['Duration'] ?? '',
-
-                //         // Column 6: Date
-                //         'Date' => !empty($row['Date'])
-                //             ? date('Y-m-d H:i:s', strtotime($row['Date']))
-                //             : '',
-
-                //         // Column 7: Transaction_ID
-                //         'Transaction_ID' => $row['Transaction_ID'] ?? '',
-
-                //         // Column 8: PaymentType (HTML badges as per frontend)
-                //         'PaymentType' => $row['PaymentType'] ?? $row['Payment_Type'] ?? '',
-
-                //         // Column 9: Fee (raw value for frontend processing)
-                //         'Fee' => $feeRaw,
-
-                //         // Column 10: Settlement_Amount
-                //         'Settlement_Amount' => $row['Settlement_Amount'] ?? $row['Settlement'] ?? 0,
-
-                //         // Column 11: Amount
-                //         'Amount' => $row['Amount'] ?? 0,
-
-                //         // Column 12: CenterName
-                //         'CenterName' => $row['CenterName'] ?? $row['Center'] ?? '',
-
-                //         // Column 13: Created_At
-                //         'Created_At' => !empty($row['Created_At'])
-                //             ? date('Y-m-d H:i:s', strtotime($row['Created_At']))
-                //             : '',
-                //     ];
-                // }
+                $counter = $start + 1;   
+                // dd($paginatedData);            
                 foreach ($paginatedData as $row) {
 
                     // ✅ Handle Fee field (final formatted value)
@@ -604,6 +541,8 @@ class ServiceController extends Controller
                             is_numeric($parsed['Paid'])
                         ) {
                             $feeDisplay = '₹' . number_format(abs((float)$parsed['Paid']), 2);
+                        }else {
+                            $feeDisplay = '₹' . number_format(abs((float)$parsed), 2);
                         }
                     }
                     /* 2️⃣ Offline fallback → Settlement_Amount */ elseif (

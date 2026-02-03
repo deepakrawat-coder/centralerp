@@ -211,11 +211,13 @@
     }, 300));
 
     function loadUniversities(erpId) {
+         let erpAccess = 'erpAccess';
         $.ajax({
             url: "/services/university-erp/0",
             type: "GET",
             data: {
-                id: erpId
+                id: erpId,
+                 indexPage: erpAccess
             },
 
             // beforeSend: function () {
