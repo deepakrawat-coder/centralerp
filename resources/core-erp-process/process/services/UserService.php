@@ -3,60 +3,118 @@ require_once "BaseService.php";
 
 class UserService extends BaseService
 {
-    public function list($uniId = null, $filters = [])
+    public function list($uniId, $getDataLimit, $filters)
     {
+        // Decode filters (string → array)
+        $filters = json_decode($filters, true) ?? [];
+
         $this->logger->info("Fetching user list", [
-            "uni_id"  => $uniId,
-            "filters" => $filters
+            "getDataLimit" => $getDataLimit,
+            "filters"      => $filters
         ]);
 
-        // BASE QUERY
-        $sql = "SELECT * FROM Users WHERE 1=1";
+        /* =========================
+           BASE SQL (COMMON)
+        ========================= */
+        $baseSql = "
+            FROM Users
+            LEFT JOIN Students 
+                ON Users.ID = Students.Added_For
+                AND Students.Step = 4
+                AND Students.Process_By_Center IS NOT NULL
+                AND Students.Payment_Received IS NOT NULL
+                AND Students.Deleted_At IS NULL
+            WHERE Users.Role IN ('Sub-Center', 'Center','Counsellor','Sub-Counsellor')
+        ";
+
         $params = [];
 
-        // If university filter exists
-        if (!empty($uniId)) {
-            $sql .= " AND University_ID = ?";
-            $params[] = $uniId;
+        /* =========================
+           FILTERS
+        ========================= */
+
+        // Vertical filter
+        if (!empty($filters['user_vertical'])) {
+            $vertical = null;
+
+            if ($filters['user_vertical'] === 'IITS') {
+                $vertical = 0;
+            } elseif ($filters['user_vertical'] === 'Edtech') {
+                $vertical = 1;
+            }
+
+            if ($vertical !== null) {
+                $baseSql .= " AND Users.Vertical_type = ?";
+                $params[] = $vertical;
+            }
         }
 
-        // Optional filter: Role
-        if (!empty($filters['role'])) {
-            $sql .= " AND Role = ?";
-            $params[] = $filters['role'];
+        // User role filter
+        if (!empty($filters['user_role'])) {
+            $baseSql .= " AND Users.Role = ?";
+            $params[] = $filters['user_role'];
         }
 
-        // Optional filter: Status
-        if (isset($filters['status'])) {
-            $sql .= " AND Status = ?";
-            $params[] = $filters['status'];
+        // Created At (single / range)
+        if (!empty($filters['processed_by_create_start']) || !empty($filters['processed_by_create_end'])) {
+
+            $start = !empty($filters['processed_by_create_start'])
+                ? date('Y-m-d', strtotime($filters['processed_by_create_start']))
+                : null;
+
+            $end = !empty($filters['processed_by_create_end'])
+                ? date('Y-m-d', strtotime($filters['processed_by_create_end']))
+                : null;
+
+            if ($start && $end) {
+                $baseSql .= " AND DATE(Users.Created_At) BETWEEN ? AND ?";
+                $params[] = $start;
+                $params[] = $end;
+
+            } elseif ($start) {
+                $baseSql .= " AND DATE(Users.Created_At) = ?";
+                $params[] = $start;
+
+            } elseif ($end) {
+                $baseSql .= " AND DATE(Users.Created_At) = ?";
+                $params[] = $end;
+            }
         }
 
-        // Optional filter: Name
-        if (!empty($filters['name'])) {
-            $sql .= " AND Name LIKE ?";
-            $params[] = "%" . $filters['name'] . "%";
+        /* =========================
+           TOTAL COUNT (FIXED)
+        ========================= */
+        $countSql = "SELECT COUNT(DISTINCT Users.ID) " . $baseSql;
+
+        $countStmt = $this->db->prepare($countSql);
+        $countStmt->execute($params);
+        $totalCount = (int) $countStmt->fetchColumn();
+
+        /* =========================
+           DATA QUERY
+        ========================= */
+        $sql = "
+            SELECT 
+                Users.*,
+                COUNT(Students.ID) AS Admissions
+            " . $baseSql . "
+            GROUP BY Users.ID
+        ";
+
+        if (!empty($getDataLimit)) {
+            $sql .= " ORDER BY Users.ID ASC LIMIT {$getDataLimit}";
         }
 
-        // Optional filter: Date range
-        if (!empty($filters['from_date']) && !empty($filters['to_date'])) {
-            $sql .= " AND Created_At BETWEEN ? AND ?";
-            $params[] = $filters['from_date'];
-            $params[] = $filters['to_date'];
-        }
-
-        // SORT
-        $sql .= " ORDER BY ID DESC";
-
-        // PREPARE & EXECUTE
         $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+        $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        if (!$stmt->execute($params)) {
-            $error = implode(" | ", $stmt->errorInfo());
-            throw new Exception("SQL Failed: " . $error);
-        }
-
-        // RETURN DATA ARRAY
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        /* =========================
+           FINAL RESPONSE
+        ========================= */
+        return [
+            'data'        => $data,
+            'total_count' => $totalCount
+        ];
     }
 }

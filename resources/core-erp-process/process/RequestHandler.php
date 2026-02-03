@@ -5,13 +5,16 @@ require_once __DIR__ . '/services/UserService.php';
 require_once __DIR__ . '/services/WalletService.php';
 require_once __DIR__ . '/services/LedgerService.php';
 require_once __DIR__ . '/services/DashboardsService.php';
+require_once __DIR__ . '/services/filterService.php';
 class RequestHandler
 {
     private $services = [];
     private $logger;
-
+    private $getDataLimit;
+    private $filters;
     public function __construct($db)
     {
+       
         $this->logger = new Logger();
 
         // Register all services
@@ -21,36 +24,33 @@ class RequestHandler
             "wallet"   => new WalletService($db, $this->logger),
             "ledger"   => new LedgerService($db, $this->logger),
             "dashboard" => new DashboardsService($db,$this->logger),
+            "filter" => new filterService($db,$this->logger),
         ];
     }
 
     /**
      * Handle API request
      */
-    public function handle($method, $uniId = null, $filters = [])
+    public function handle($method, $uni_id = null,$getDataLimit=null,$filters=null)
     {
-        $this->logger->info("REQUEST RECEIVED", [
-            "method" => $method,
-            "uni_id" => $uniId,
-            "filters" => $filters
-        ]);
+    //  echo('<pre>');print_r($getDataLimit);die;
+    $this->logger->info("REQUEST RECEIVED", [
+        "method" => $method,
+        "uni_id" => $uni_id,
+        "getDataLimit"=>$getDataLimit,
+        "filters"=>$filters
+        
+    ]);
 
-        // Check valid API method
-        if (!isset($this->services[$method])) {
-            $this->logger->error("INVALID_METHOD", ["method" => $method]);
-            throw new Exception("Invalid API method: $method");
-        }
-
-        $service = $this->services[$method];
-
-        // ✔ Directly return service list data
-        $result = $service->list($uniId, $filters);
-
-        $this->logger->info("REQUEST_SUCCESS", [
-            "method" => $method,
-            "records" => is_array($result) ? count($result) : 0
-        ]);
-
-        return $result;
+    if (!isset($this->services[$method])) {
+        $this->logger->error("INVALID_METHOD", ["method" => $method]);
+        throw new Exception("Invalid API method: $method");
     }
+
+    $service = $this->services[$method];
+
+    // ✅ ONLY pass uniId
+    return $service->list($uni_id,$getDataLimit,$filters);
+}
+
 }
