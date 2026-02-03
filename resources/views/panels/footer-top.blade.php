@@ -78,6 +78,8 @@
 <script src="/assets/js/tooltip-init.js"></script>
 <script src="/assets/js/sweet-alert/sweetalert.min.js"></script>
 <script src="/assets/js/sweet-alert/app.js"></script>
+<script src="/assests/js/central-js/general.js"></script>
+<script src="/assests/js/central-js/custom-script.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 
@@ -209,7 +211,6 @@
             }
         });
     }, 300));
-
     function loadUniversities(erpId) {
          let erpAccess = 'erpAccess';
         $.ajax({
@@ -310,7 +311,6 @@
         });
 
     });
-
     function filterdata(liveUrl, uniId) {
         let method = "students";
 
@@ -361,7 +361,6 @@
             }
         });
     }
-
     function changeErpData(erpId) {
         let erpAccess = 'erpAccess';
         $.ajax({
@@ -447,7 +446,6 @@
             }
         });
     });
-
     function downloadExcel(header, data, method) {
         const form = document.createElement('form');
         form.method = 'POST';
@@ -477,10 +475,7 @@
         document.body.appendChild(form);
         form.submit();
         document.body.removeChild(form);
-    }
-    // ======================================
-    // 🔥 EXCEL CONFIG (MODULE WISE)
-    // ======================================
+    }    
     const EXCEL_CONFIG = {
         students: {
             header: [
@@ -542,11 +537,7 @@
                 'users_id'
             ]
         }
-    };
-    // ======================================
-    // 🔥 MAIN EXCEL EXPORT FUNCTION
-    // ======================================
-
+    };  
     function excelData(method, uni_id, live_url) {
 
         // 🔹 Date range splitter

@@ -31,11 +31,9 @@ class ServiceController extends Controller
                 ->firstOrFail();
             Session::put('live_url', $erp->live_url);
             $baseUrl = rtrim($erp->live_url, '/');
-           
         } else if (Session::get('uni_id')) {
             $live_url = Session::get('live_url');
             $baseUrl = rtrim($live_url, '/');
-            
         } else {
             Session::forget('University_table_id');
 
@@ -285,7 +283,7 @@ class ServiceController extends Controller
                 // dd($paginatedData);
                 foreach ($paginatedData as $row) {
                     // dd($paginatedData);
-                    $vertical = (!isset($row['verticalName']) || trim($row['verticalName']) === '')? null: $row['verticalName'];
+                    $vertical = (!isset($row['verticalName']) || trim($row['verticalName']) === '') ? null : $row['verticalName'];
                     $data[] = [
                         // Column 0: DT_RowIndex
                         'DT_RowIndex' => $counter++,
@@ -513,7 +511,7 @@ class ServiceController extends Controller
                 // Prepare DataTables response - MATCH ALL 14 FRONTEND COLUMNS
                 // =============================
                 $data = [];
-                $counter = $start + 1;   
+                $counter = $start + 1;
                 // dd($paginatedData);            
                 foreach ($paginatedData as $row) {
 
@@ -541,7 +539,7 @@ class ServiceController extends Controller
                             is_numeric($parsed['Paid'])
                         ) {
                             $feeDisplay = '₹' . number_format(abs((float)$parsed['Paid']), 2);
-                        }else {
+                        } else {
                             $feeDisplay = '₹' . number_format(abs((float)$parsed), 2);
                         }
                     }

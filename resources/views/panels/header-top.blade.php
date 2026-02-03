@@ -1,8 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<!-- Mirrored from admin.pixelstrap.com/wingo/theme/dashboard-03.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 08 Dec 2025 06:42:46 GMT -->
-
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -18,11 +15,8 @@
     <link rel="icon" href="{{ asset('assets/images/panel-image/edtech-fvicon.png') }} " type="image/x-icon">
     <!-- Google font-->
     <link rel="preconnect" href="https://fonts.gstatic.com/">
-    <link
-        href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&amp;display=swap"
-        rel="stylesheet">
-    <!-- Font Awesome-->
-    {{-- <link rel="stylesheet" type="text/css" href="/assets/css/vendors/font-awesome.css"> --}}
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&amp;display=swap" rel="stylesheet">
+ 
     <!-- ico-font-->
     <link rel="stylesheet" type="text/css" href="/assets/css/vendors/icofont.css">
     <!-- Themify icon-->
