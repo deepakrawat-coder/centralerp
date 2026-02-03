@@ -32,13 +32,9 @@
 
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h3 class="mb-0">Wallet Transactions</h3>
-                        <div class="d-flex flex-row">
-                            <button id="toggle-filters" class="btn btn-primary btn-sm">
-                                <i class="fa fa-filter"></i> Show Filters
-                            </button>
-                            <button class="border-0 shadow-none bg-white fs-3 text-success"><i class="ri-file-excel-2-fill"
-                                    onclick="excelData('wallet','{{ session('uni_id') }}','{{ session('live_url') }}')"></i></button>
-                        </div>
+                        <button id="toggle-filters" class="btn btn-primary btn-sm">
+                            <i class="fa fa-filter"></i> Show Filters
+                        </button>
                     </div>
 
                     {{-- FILTERS --}}

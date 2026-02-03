@@ -36,13 +36,9 @@
                     {{-- HEADER --}}
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h3 class="mb-0">Student Ledger</h3>
-                        <div class="d-flex flex-row">
-                            <button id="toggle-filters" class="btn btn-primary btn-sm">
-                                <i class="fa fa-filter"></i> Show Filters
-                            </button>
-                            <button class="border-0 shadow-none bg-white fs-3 text-success"><i class="ri-file-excel-2-fill"
-                                    onclick="excelData('ledger','{{ session('uni_id') }}','{{ session('live_url') }}')"></i></button>
-                        </div>
+                        <button id="toggle-filters" class="btn btn-primary btn-sm">
+                            <i class="fa fa-filter"></i> Show Filters
+                        </button>
                     </div>
 
                     {{-- ================= FILTER SECTION ================= --}}
@@ -132,7 +128,62 @@
                     '<i class="fa fa-filter"></i> Show Filters');
             });
 
-          
+            // // =============================
+            // // Date Range Picker
+            // // =============================
+            // $('#transaction_date').daterangepicker({
+            //     autoUpdateInput: false,
+            //     locale: {
+            //         format: 'YYYY-MM-DD',
+            //         cancelLabel: 'Clear'
+            //     }
+            // });
+
+            // $('#transaction_date').on('apply.daterangepicker', function(ev, picker) {
+            //     $(this).val(
+            //         picker.startDate.format('YYYY-MM-DD') +
+            //         ', ' +
+            //         picker.endDate.format('YYYY-MM-DD')
+            //     );
+            // });
+
+            // $('#transaction_date').on('cancel.daterangepicker', function() {
+            //     $(this).val('');
+            // });
+
+            // =============================
+            // Load Course Dropdown (localStorage)
+            // =============================
+            // function loadLedgerCourseFilter() {
+
+            //     const stored = localStorage.getItem('ledgers');
+            //     if (!stored) return;
+
+            //     const parsed = JSON.parse(stored);
+            //     const list = parsed.ledgersUsers || [];
+
+            //     const $select = $('#course_id');
+            //     $select.html('<option value="">Search Course</option>');
+
+            //     const added = new Set();
+
+            //     list.forEach(item => {
+            //         if (!item.Course_ID || added.has(item.Course_ID)) return;
+            //         added.add(item.Course_ID);
+
+            //         $select.append(
+            //             `<option value="${item.Course_ID}">
+        //         ${item.Course_Name ?? 'Unknown Course'}
+        //     </option>`
+            //         );
+            //     });
+
+            //     $select.select2({
+            //         placeholder: 'Search Course',
+            //         allowClear: true,
+            //         width: '100%'
+            //     });
+            // }
             function loadLedgerUserFilter() {
 
                 const stored = localStorage.getItem('ledgers');
@@ -306,7 +357,7 @@
                     // },
                     {
                         data: 'Fee',
-
+                        
                     },
                     {
                         data: 'Settlement_Amount',
@@ -314,7 +365,7 @@
                     },
                     {
                         data: 'Amount',
-                        // render: v => v ? `₹${parseFloat(v).toLocaleString('en-IN')}` : '—'
+                        render: v => v ? `₹${parseFloat(v).toLocaleString('en-IN')}` : '—'
                     },
                     {
                         data: 'CenterName'

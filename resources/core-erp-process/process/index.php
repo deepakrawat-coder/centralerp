@@ -16,24 +16,48 @@ $_POST = filterInput($_POST);
 $logger ="";
 $method = $_GET["method"] ?? "";
 $uniId  = $_GET["uni_id"] ?? "";
-$getDataLimit=$_GET['limit']??"";
-if(!empty($_GET['filter'])){
-$filters= base64_decode($_GET['filter'])??"";}else{
-    $filters = " ";
-}
-// echo('<pre>');print_r($filters);die;
 $appLogger = new Logger();
-// echo('<pre>');print_r($getDataLimit);die;
-if($method===""&&$uniId===""&&$getDataLimit===""){
-    // echo('sadsa');die;
+// if()
+// ----------- Missing Method Handling -----------
+// if($_GET['unidata']==='unidata'){
+//      $logger->info("Default university list triggered", [
+//         "reason"  => "METHOD_OR_UNI_ID_MISSING",
+//         "method"  => $method,
+//         "uni_id"  => $uniId,
+//         "get"     => $_GET,
+//         "post"    => $_POST,
+//         "ip"      => $_SERVER['REMOTE_ADDR'] ?? null
+//     ]);
+
+//     $sql = "SELECT id, university_name, live_url, logo
+//             FROM Universities
+//             ORDER BY university_name ASC";
+
+//     $stmt = $db->prepare($sql);
+//     $stmt->execute();
+
+//     $universities = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+//     echo json_encode(
+//         api_response(
+//             true,
+//             200,
+//             "UNIVERSITY_LIST",
+//             "Universities fetched successfully",
+//             $universities
+//         ),
+//         JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE
+//     );
+//     exit;
+// }
+// if (isset($_GET['unidata']) && $_GET['unidata'] === 'unidata') {
+if($method===""||$uniId===""){
     $appLogger->info("Default university list triggered", [
         "reason" => "UNIDATA_FLAG",
         "method" => $method,
         "uni_id" => $uniId,
         "get"    => $_GET,
         "post"   => $_POST,
-        "getDataLimit"=>$getDataLimit,
-        "filters"=>$filters,
         "ip"     => $_SERVER['REMOTE_ADDR'] ?? null
     ]);
 
@@ -73,7 +97,7 @@ if ($method === "") {
 $handler  = new RequestHandler($db);
 
 try {
-    $response = $handler->handle($method, $uniId,$getDataLimit,$filters);
+    $response = $handler->handle($method, $uniId);
 
     // echo json_encode(api_response(
     //     true,

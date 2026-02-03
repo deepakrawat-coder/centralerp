@@ -1,160 +1,62 @@
 <?php
+
 require_once "BaseService.php";
 
 class LedgerService extends BaseService
 {
-    public function list($uniId, $getDataLimit, $filters)
+    public function list($uniId, $filters = [])
     {
-        $filters = json_decode($filters, true) ?? [];
-
         $this->logger->info("Fetching ledger list", [
             "uni_id"  => $uniId,
             "filters" => $filters
         ]);
 
-        /* =========================
-           ✅ TOTAL COUNT (FIXED)
-        ========================= */
-        $countSql = "
-            SELECT COUNT(*)
-            FROM Student_Ledgers AS SL
-            LEFT JOIN Students AS ST ON SL.Student_ID = ST.ID
-            WHERE SL.University_ID = ?
-        ";
-        $countParams = [$uniId];
-
-        if (!empty($filters['transaction_id'])) {
-            $countSql .= " AND SL.Transaction_ID = ?";
-            $countParams[] = $filters['transaction_id'];
-        }
-
-        if (!empty($filters['users_id'])) {
-            $countSql .= " AND ST.Added_For = ?";
-            $countParams[] = $filters['users_id'];
-        }
-
-        if (!empty($filters['type'])) {
-            $countSql .= " AND SL.Type = ?";
-            $countParams[] = $filters['type'];
-        }
-
-        if (!empty($filters['min_amount'])) {
-            $countSql .= " AND SL.Settlement_Amount >= ?";
-            $countParams[] = $filters['min_amount'];
-        }
-
-        if (!empty($filters['max_amount'])) {
-            $countSql .= " AND SL.Settlement_Amount <= ?";
-            $countParams[] = $filters['max_amount'];
-        }
-
-        // ✅ transaction date (single OR range)
-        if (!empty($filters['transaction_start']) || !empty($filters['transaction_end'])) {
-
-            $start = !empty($filters['transaction_start'])
-                ? date('Y-m-d', strtotime($filters['transaction_start']))
-                : null;
-
-            $end = !empty($filters['transaction_end'])
-                ? date('Y-m-d', strtotime($filters['transaction_end']))
-                : null;
-
-            if ($start && $end) {
-                $countSql .= " AND DATE(SL.Date) BETWEEN ? AND ?";
-                $countParams[] = $start;
-                $countParams[] = $end;
-            } elseif ($start) {
-                $countSql .= " AND DATE(SL.Date) = ?";
-                $countParams[] = $start;
-            } elseif ($end) {
-                $countSql .= " AND DATE(SL.Date) = ?";
-                $countParams[] = $end;
-            }
-        }
-
-        $countStmt = $this->db->prepare($countSql);
-        $countStmt->execute($countParams);
-        $totalCount = (int) $countStmt->fetchColumn();
-
-        /* =========================
-           🔹 MAIN DATA QUERY (UNCHANGED, ONLY BUG FIX)
-        ========================= */
+        $sql = "SELECT * 
+                FROM Student_Ledgers 
+                WHERE University_ID = ?";
+        
         $params = [$uniId];
 
-        $sql = "
-            SELECT 
-                SL.*,
-                CONCAT(ST.First_Name, ' ', IFNULL(ST.Middle_Name, ''), ' ', ST.Last_Name) AS StudentName,
-                ST.Unique_ID,
-                ST.Email,
-                ST.Contact,
-                CONCAT(U.Name, ' (', U.Code, ')') AS CenterName,
-                CASE
-                    WHEN SL.Type = 1 THEN SL.Fee
-                    WHEN SL.Type = 2 THEN SL.Settlement_Amount
-                    WHEN SL.Type = 3 THEN SL.Settlement_Amount
-                    ELSE 0
-                END AS Amount,
-                CASE
-                    WHEN SL.Type = 1 THEN 'Course Fee'
-                    WHEN SL.Type = 2 THEN 'Offline Student Fee'
-                    WHEN SL.Type = 3 THEN 'Wallet Payment'
-                    ELSE 'Unknown'
-                END AS PaymentType
-            FROM Student_Ledgers AS SL
-            LEFT JOIN Students AS ST ON SL.Student_ID = ST.ID
-            LEFT JOIN Users AS U ON ST.Added_For = U.ID
-            WHERE SL.University_ID = ?
-        ";
-
-        if (!empty($filters['transaction_id'])) {
-            $sql .= " AND SL.Transaction_ID = ?";
-            $params[] = $filters['transaction_id'];
+        // Filter by Student ID
+        if (!empty($filters['student_id'])) {
+            $sql .= " AND Student_ID = ?";
+            $params[] = $filters['student_id'];
         }
 
-        if (!empty($filters['users_id'])) {
-            $sql .= " AND ST.Added_For = ?";
-            $params[] = $filters['users_id'];
+        // Filter by Type
+        if (!empty($filters['type'])) {
+            $sql .= " AND Type = ?";
+            $params[] = $filters['type'];
         }
 
-        // ✅ FIXED: was $baseSql → now $sql
-        if (!empty($filters['transaction_start']) || !empty($filters['transaction_end'])) {
-
-            $start = !empty($filters['transaction_start'])
-                ? date('Y-m-d', strtotime($filters['transaction_start']))
-                : null;
-
-            $end = !empty($filters['transaction_end'])
-                ? date('Y-m-d', strtotime($filters['transaction_end']))
-                : null;
-
-            if ($start && $end) {
-                $sql .= " AND DATE(SL.Date) BETWEEN ? AND ?";
-                $params[] = $start;
-                $params[] = $end;
-            } elseif ($start) {
-                $sql .= " AND DATE(SL.Date) = ?";
-                $params[] = $start;
-            } elseif ($end) {
-                $sql .= " AND DATE(SL.Date) = ?";
-                $params[] = $end;
-            }
+        // Min Amount — Fee or Settlement_Amount?
+        if (!empty($filters['min_amount'])) {
+            $sql .= " AND Settlement_Amount >= ?";
+            $params[] = $filters['min_amount'];
         }
 
-        if (!empty($getDataLimit)) {
-            $sql .= " ORDER BY SL.ID ASC LIMIT {$getDataLimit}";
+        // Max Amount
+        if (!empty($filters['max_amount'])) {
+            $sql .= " AND Settlement_Amount <= ?";
+            $params[] = $filters['max_amount'];
         }
+
+        // Date Range (Using correct column: Date)
+        if (!empty($filters['from_date']) && !empty($filters['to_date'])) {
+            $sql .= " AND Date BETWEEN ? AND ?";
+            $params[] = $filters['from_date'];
+            $params[] = $filters['to_date'];
+        }
+
+        // Order latest
+        $sql .= " ORDER BY Date DESC";
 
         $stmt = $this->db->prepare($sql);
-        $stmt->execute($params);
-        $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        /* =========================
-           ✅ FINAL RESPONSE
-        ========================= */
-        return [
-            'data'        => $data,
-            'total_count' => $totalCount
-        ];
+        if (!$stmt->execute($params)) {
+            throw new Exception("SQL Failure: " . implode(" | ", $stmt->errorInfo()));
+        }
+// print_r($stmt->fetchAll(PDO::FETCH_ASSOC));die;
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }

@@ -19,7 +19,11 @@ class ServiceController extends Controller
 {
     public function handle(Request $request, $method, $uni_id, $tokeuniversity = null)
     {
-
+        // dd([
+        //     $request->input('start'),
+        //     $request->input('length'),
+        // ]);
+        // dd($request->filters);
         if ($request->indexPage == 'erpAccess') {
             Session::forget('live_url');
             $request->validate([
@@ -31,10 +35,13 @@ class ServiceController extends Controller
                 ->firstOrFail();
             Session::put('live_url', $erp->live_url);
             $baseUrl = rtrim($erp->live_url, '/');
+            // dd($baseUrl);
         } else if (Session::get('uni_id')) {
+            //    dd($request->all());
             $live_url = Session::get('live_url');
             $baseUrl = rtrim($live_url, '/');
         } else {
+            // dd($request->all());
             Session::forget('University_table_id');
 
             $request->validate([
@@ -253,7 +260,7 @@ class ServiceController extends Controller
                     0 => 'DT_RowIndex',      // DT_RowIndex
                     1 => 'Photo',            // Photo
                     2 => 'Name',             // Name
-                    3 => 'verticalName',    // Vertical_type
+                    3 => 'Vertical_type',    // Vertical_type
                     4 => 'Short_Name',       // Short_Name (if exists, else Name)
                     5 => 'Email',            // Email
                     6 => 'Mobile',           // Mobile (check if exists, else Contact)
@@ -279,10 +286,8 @@ class ServiceController extends Controller
                 // ========================
                 $data = [];
                 $counter = $start + 1;
-                // dd($paginatedData);
+
                 foreach ($paginatedData as $row) {
-                    // dd($paginatedData);
-                    $vertical = (!isset($row['verticalName']) || trim($row['verticalName']) === '')? null: $row['verticalName'];
                     $data[] = [
                         // Column 0: DT_RowIndex
                         'DT_RowIndex' => $counter++,
@@ -296,8 +301,7 @@ class ServiceController extends Controller
                         'Name' => $row['Name'] ?? '',
 
                         // Column 3: Vertical_type (raw value for sorting)
-
-                        'verticalName' => $vertical,
+                        'Vertical_type' => $row['Vertical_type'] ?? 0,
 
                         // Column 4: Short_Name (use Short_Name if exists, else Name)
                         'Short_Name' => $row['Short_Name'] ?? $row['Name'] ?? '',
@@ -616,14 +620,7 @@ class ServiceController extends Controller
                     /* 3️⃣ Normal Course Fee */ elseif (!empty($feeRaw) && is_numeric($feeRaw)) {
                         $feeDisplay = '₹' . number_format((float)$feeRaw, 2);
                     }
-                    if (
-                        in_array($paymentType, ['Wallet Payment', 'Offline Student Fee'], true)
-                        && !empty($feeRaw)
-                    ) {
-                        $finalAmount = $feeDisplay;
-                    } else {
-                        $finalAmount = '₹' . number_format((float)$row['Amount'], 2);
-                    }
+
 
                     $data[] = [
                         'DT_RowIndex'     => $counter++,
@@ -642,7 +639,7 @@ class ServiceController extends Controller
                         'Fee'             => $feeDisplay,
 
                         'Settlement_Amount' => $row['Settlement_Amount'] ?? $row['Settlement'] ?? 0,
-                        'Amount'            => $finalAmount ?? 0,
+                        'Amount'            => $row['Amount'] ?? 0,
                         'CenterName'        => $row['CenterName'] ?? $row['Center'] ?? '',
                         'Created_At'        => !empty($row['Created_At'])
                             ? date('Y-m-d H:i:s', strtotime($row['Created_At']))
@@ -673,6 +670,27 @@ class ServiceController extends Controller
         $data = $responseData;
         return response()->json($data);
     }
+    // private function applyDateRangeFilter(
+    //     Collection $collection,
+    //     string $field,
+    //     ?string $startDate,
+    //     ?string $endDate
+    // ): Collection {
+    //     if (empty($startDate) || empty($endDate)) {
+    //         return $collection;
+    //     }
+
+    //     $start = Carbon::createFromFormat('m/d/Y', $startDate)->startOfDay();
+    //     $end   = Carbon::createFromFormat('m/d/Y', $endDate)->endOfDay();
+
+    //     return $collection->filter(function ($item) use ($field, $start, $end) {
+    //         if (empty($item[$field])) {
+    //             return false;
+    //         }
+
+    //         return Carbon::parse($item[$field])->between($start, $end);
+    //     });
+    // }
     public function dashboard(Request $request, $uni_id = null)
     {
 
@@ -749,9 +767,144 @@ class ServiceController extends Controller
             'message' => 'Logged out successfully'
         ]);
     }
+
+
+
+    // public function exportExcel(Request $request)
+    // {
+    //     $module = $request->input('method', 'students');
+    //     // $data   = $request->input('data', []);  
+    //     // $excelData   = $data['data'];  
+    //     $data = $request->input('data', []);
+    //     if (is_string($data)) {
+    //         $data = json_decode($data, true);
+    //     }
+    //     if (!is_array($data) || !isset($data['data'])) {
+    //         return response()->json([
+    //             'message' => 'Invalid excel data format'
+    //         ], 400);
+    //     }
+
+    //     $data = $data['data'];
+
+    //     if (is_string($data)) {
+    //         $data = json_decode($data, true);
+    //     }
+
+    //     if (!is_array($data) || empty($data)) {
+    //         return response()->json(['message' => 'No data found'], 400);
+    //     }
+
+    //     /* ===============================
+    //             ✅ HEADER → DB COLUMN MAP
+    //               =============================== */
+    //     if ($module === 'students') {
+    //         $headerMap = [
+    //             'Student ID'     => 'Unique_ID',
+    //             'Enrollment'     => 'Enrollment_No',
+    //             'Name'           => 'FULL_NAME',
+    //             'Father'         => 'Father_Name',
+    //             'Email'          => 'Email',
+    //             'Contact'        => 'Contact',
+    //             'Process Date'   => 'Process_By_Center',
+    //             'Payment Date'   => 'Payment_Received',
+    //             'Document Date'  => 'Document_Verified',
+    //             'User'           => 'user_name_code',
+    //             'Course'         => 'CourseName',
+    //             'Specialization' => 'SubCourseName',
+    //             'Address'        => 'Address',
+    //             'Status'         => 'Status',
+    //             'Created'        => 'Created_At',
+    //         ];
+    //     } else {
+    //         return response()->json(['message' => 'Invalid module'], 400);
+    //     }
+
+    //     /* =============================== ✅ BUILD EXCEL ROWS  =============================== */
+    //     $rows = [];
+
+    //     foreach ($data as $row) {
+
+    //         $excelRow = [];
+
+    //         foreach ($headerMap as $dbKey) {
+
+    //             if ($dbKey === 'FULL_NAME') {
+    //                 $value = trim(
+    //                     ($row['First_Name'] ?? '') . ' ' .
+    //                         ($row['Middle_Name'] ?? '') . ' ' .
+    //                         ($row['Last_Name'] ?? '')
+    //                 );
+    //             } else if ($dbKey === 'Address') {
+    //                 $addr = $row[$dbKey];
+
+    //                 // ✅ If Address is JSON string → decode
+    //                 if (is_string($addr)) {
+    //                     $addr = json_decode($addr, true);
+    //                 }
+
+    //                 // ✅ If decoded properly
+    //                 if (is_array($addr)) {
+    //                     $value = trim(implode(', ', array_filter([
+    //                         $addr['present_address'] ?? '',
+    //                         $addr['present_city'] ?? '',
+    //                         $addr['present_district'] ?? '',
+    //                         $addr['present_state'] ?? '',
+    //                         $addr['present_pincode'] ?? '',
+    //                     ])));
+    //                 } else {
+    //                     $value = '';
+    //                 }
+    //                 // dd($value);
+    //             } else if ($dbKey === 'Status') {
+    //                 $value = ($row['First_Name'] == 1) ? 'Active' : "Inactive";
+    //             } else {
+    //                 $value = $row[$dbKey] ?? '';
+    //             }
+
+    //             if (is_array($value) || is_object($value)) {
+    //                 $value = json_encode($value, JSON_UNESCAPED_UNICODE);
+    //             }
+
+    //             $excelRow[] = $value;
+    //         }
+
+    //         $rows[] = $excelRow;
+    //     }
+
+    //     /* =============================== ✅ CREATE EXCEL =============================== */
+    //     $spreadsheet = new Spreadsheet();
+    //     $sheet = $spreadsheet->getActiveSheet();
+
+    //     // HEADER
+    //     $sheet->fromArray(array_keys($headerMap), null, 'A1');
+    //     $sheet->getStyle('A1:' . $sheet->getHighestColumn() . '1')
+    //         ->getFont()->setBold(true);
+
+    //     // DATA
+    //     $sheet->fromArray($rows, null, 'A2');
+
+    //     // AUTO SIZE
+    //     foreach (range('A', $sheet->getHighestColumn()) as $col) {
+    //         $sheet->getColumnDimension($col)->setAutoSize(true);
+    //     }
+
+    //     $fileName = 'students_export_' . date('Ymd_His') . '.xlsx';
+    //     $writer = new Xlsx($spreadsheet);
+
+    //     return response()->streamDownload(
+    //         function () use ($writer) {
+    //             if (ob_get_length()) ob_end_clean();
+    //             $writer->save('php://output');
+    //         },
+    //         $fileName,
+    //         ['Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']
+    //     );
+    // }
     private function getModuleConfig(string $module): array
     {
         return [
+
             'students' => [
                 'headers' => [
                     'Student ID'     => 'Unique_ID',
@@ -799,151 +952,46 @@ class ServiceController extends Controller
 
             'wallet' => [
                 'headers' => [
-                    'Type'               => 'Type',
-                    'Transaction Date'   => 'Transaction_Date',
-                    'Transaction ID'     => 'Transaction_ID',
-                    'Gateway ID'         => 'Gateway_ID',
-                    'Bank'               => 'Bank',
-                    'Payment Mode'       => 'Payment_Mode',
-                    'Amount'             => 'Amount',
-                    'Added By'           => 'Added_for_User',
-                    'Approved By'        => 'Approved_By_User',
-                    'Approved On'        => 'Approved_On',
-                    'University'         => 'University_Name',
-                    'Created At'         => 'Created_At',
+                    'User ID'   => 'user_id',
+                    'Amount'    => 'amount',
+                    'Type'      => 'type',
+                    'Balance'   => 'balance',
+                    'Created'   => 'created_at',
                 ],
-                'transformers' => [
-                    'Type' => function ($row) {
-                        return ($row['Type'] == '1') ? 'Offline' : 'Online';
-                    },
-                ],
+                'transformers' => [],
             ],
-
 
             'ledger' => [
                 'headers' => [
-                    'Student ID'    => 'Unique_ID',
-                    'Student Name'      => 'StudentName',
-                    'Contact'    => 'Contact',
-                    'Duration'     => 'Duration',
-                    'Transaction Date'   => 'Date',
-                    'Transaction ID'      => 'Transaction_ID',
-                    'Payment Type' => 'PaymentType',
-                    'Fee Amount' => 'Fee',
-                    'Settlement Amount' => 'Settlement_Amount',
-                    'Final Amount' => 'Amount',
-                    'Center' => 'CenterName',
-                    'Created At' => 'Created_At',
+                    'Txn ID'    => 'transaction_id',
+                    'User'      => 'user_id',
+                    'Credit'    => 'credit',
+                    'Debit'     => 'debit',
+                    'Remarks'   => 'remarks',
+                    'Date'      => 'created_at',
                 ],
-                'transformers' => [
-
-                    'Fee' => function ($row) {
-
-                        $paymentType = $row['PaymentType'] ?? '';
-                        $feeRaw      = $row['Fee'] ?? '';
-
-                        // Type = 1 → JSON sum
-                        if (($row['Type'] ?? 0) == 1 && !empty($feeRaw)) {
-                            $parsed = json_decode($feeRaw, true);
-                            if (json_last_error() === JSON_ERROR_NONE && is_array($parsed)) {
-                                return '₹' . number_format(array_sum(array_map('floatval', $parsed)), 2);
-                            }
-                        }
-
-                        // Wallet / Offline → Paid key
-                        if (
-                            in_array($paymentType, ['Wallet Payment', 'Offline Student Fee'], true)
-                            && !empty($feeRaw)
-                        ) {
-                            $parsed = json_decode($feeRaw, true);
-                            if (json_last_error() === JSON_ERROR_NONE && isset($parsed['Paid']) && is_numeric($parsed['Paid'])) {
-                                return '₹' . number_format(abs((float) $parsed['Paid']), 2);
-                            }
-                        }
-
-                        // Default → numeric or raw fee
-                        if (is_numeric($feeRaw)) {
-                            return '₹' . number_format((float) $feeRaw, 2);
-                        }
-
-                        return '₹' . $feeRaw;
-                    },
-
-                    'Amount' => function ($row) {
-
-                        $paymentType = $row['PaymentType'] ?? '';
-                        $feeRaw      = $row['Fee'] ?? '';
-
-                        // Type = 1 → JSON sum
-                        if (($row['Type'] ?? 0) == 1 && !empty($feeRaw)) {
-                            $parsed = json_decode($feeRaw, true);
-                            if (json_last_error() === JSON_ERROR_NONE && is_array($parsed)) {
-                                return '₹' . number_format(array_sum(array_map('floatval', $parsed)), 2);
-                            }
-                        }
-
-                        // Wallet / Offline → Paid key
-                        if (
-                            in_array($paymentType, ['Wallet Payment', 'Offline Student Fee'], true)
-                            && !empty($feeRaw)
-                        ) {
-                            $parsed = json_decode($feeRaw, true);
-                            if (json_last_error() === JSON_ERROR_NONE && isset($parsed['Paid']) && is_numeric($parsed['Paid'])) {
-                                return '₹' . number_format(abs((float) $parsed['Paid']), 2);
-                            }
-                        }
-
-                        // Default → Amount from SQL/PHP
-                        return '₹' . number_format((float) ($row['Amount'] ?? 0), 2);
-                    },
-
-                ],
-
-
+                'transformers' => [],
             ],
 
             'users' => [
                 'headers' => [
-                    'User Name'   => 'Name',
-                    'Verticals'      => 'vertical',
-                    'Short Name'     => 'Short_Name',
-                    'Email'    => 'Email',
-                    'Contact'      => 'Mobile',
-                    'Designation'    => 'Designation',
-                    'Students Admission' => 'Admissions',
-                    'Address' => 'Address',
-                    'Status' => 'Status',
-                    'Created At' => 'Created_At',
+                    'User ID'   => 'id',
+                    'Name'      => 'name',
+                    'Email'     => 'email',
+                    'Mobile'    => 'mobile',
+                    'Role'      => 'role',
+                    'Status'    => 'status',
                 ],
                 'transformers' => [
-                    'Status' => fn($row) => ($row['Status'] ?? 0) ? 'Active' : 'Inactive',
-
-                    'Address' => function ($row) {
-                        return implode(', ', array_filter([
-                            $row['Address']  ?? '',
-                            $row['District'] ?? '',
-                            $row['City']     ?? '',
-                            $row['State']    ?? '',
-                            $row['Pincode']  ?? '',
-                        ]));
-                    },
-                    'vertical' => function ($row) {
-                        return match ($row['vertical'] ?? null) {
-                            '1', 1 => 'Edtech',
-                            '2', 2 => 'IITS',
-                            '3', 3 => 'Rudra',
-                            default => '',
-                        };
-                    },
+                    'status' => fn($row) => ($row['status'] ?? 0) ? 'Active' : 'Inactive',
                 ],
-
-
             ],
+
         ][$module] ?? [];
     }
     public function exportExcel(Request $request)
     {
-        $module = $request->input('method', 'students', 'users', 'ledger', 'wallet');
+        $module = $request->input('method', 'students');
 
         $config = $this->getModuleConfig($module);
         if (empty($config)) {
@@ -954,7 +1002,6 @@ class ServiceController extends Controller
         $payload = is_string($payload) ? json_decode($payload, true) : $payload;
 
         $data = $payload['data'] ?? [];
-        // dd($data);
         if (!is_array($data) || empty($data)) {
             return response()->json(['message' => 'No data found'], 400);
         }
