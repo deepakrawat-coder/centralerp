@@ -28,10 +28,12 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h3 class="mb-4">Users List</h3>
-                        <div>
+                        <div class="d-flex flex-row">
                             <button id="toggle-filters" class="btn btn-primary btn-sm me-2">
                                 <i class="fa fa-filter"></i> Show Filters
                             </button>
+                            <button class="border-0 shadow-none bg-white fs-3 text-success"><i class="ri-file-excel-2-fill"
+                                    onclick="excelData('users','{{ session('uni_id') }}','{{ session('live_url') }}')"></i></button>
                         </div>
                     </div>
 
@@ -117,8 +119,8 @@
 
                 // your data is inside usersRole
                 const roles = parsed.usersRole?.roles || [];
-                const verticals = parsed.usersRole?.verticals || [];
-                console.log(roles);
+                const verticals = parsed.usersRole?.verticals || {};
+                console.log(verticals);
                 // Populate role select
                 const roleSelect = $('#user_role')
                     .empty()
@@ -132,10 +134,23 @@
                 const verticalSelect = $('#user_vertical')
                     .empty()
                     .append('<option value="">All Vertical</option>');
+                if (verticals && Object.keys(verticals).length > 0) {
+                    Object.entries(verticals).forEach(([key, value]) => {
+                        // console.log(key, value);
+                        verticalSelect.append(
+                            `<option value="${value}">${value}</option>`
+                        );
+                    });
+                } else {
+                    verticalSelect.append(
+                        `<option value="" disabled>No Vertical Fund</option>`
+                    );
+                }
 
-                verticals.forEach(v => {
-                    verticalSelect.append(`<option value="${v}">${v}</option>`);
-                });
+
+
+
+
             }
 
             // ================================
@@ -179,23 +194,6 @@
                     url: `/services/users/${uni_id}`,
                     type: "GET",
                     data: function(d) {
-                        // Parse date range
-                        // const createDate = $('#created_AT').val() || '';
-                        // let createStart = '',
-                        //     createEnd = '';
-                        // if (createDate.includes(',')) {
-                        //     const parts = createDate.split(',').map(v => v.trim());
-                        //     createStart = parts[0] || '';
-                        //     createEnd = parts[1] || '';
-                        // }
-
-                        // d.filters = {
-
-                        //     processed_by_create_start: createStart,
-                        //     processed_by_create_end: createEnd,
-                        //     user_vertical: $('#user_vertical').val(),
-                        //     user_role: $('#user_role').val()
-                        // };
                         const createDate = $('#created_AT').val() || '';
 
                         let createStart = '',
@@ -210,7 +208,7 @@
                             } else {
                                 // ✅ SINGLE DATE
                                 createStart = createDate.trim();
-                                
+
                             }
                         }
 
@@ -239,19 +237,22 @@
                         data: 'Name'
                     },
                     {
-                        data: 'Vertical_type',
+                        data: 'verticalName',
                         orderable: true,
                         searchable: false,
                         render: function(data, type, row) {
 
-                            // For sorting & searching, return raw value
+                            // Sorting / type detection → raw text
                             if (type === 'sort' || type === 'type') {
-                                return data;
+                                return data ?? '';
                             }
 
-                            return data == 1 ?
-                                '<span class="badge bg-primary">Edtech</span>' :
-                                '<span class="badge bg-primary">IITS</span>';
+                            // Display fallback
+                            if (!data || data === '-') {
+                                return '-';
+                            }
+
+                            return data;
                         }
                     },
                     {
@@ -285,9 +286,9 @@
                     },
                     {
                         data: 'Created_At',
-                        render: function(date) {
-                            return date ? new Date(date).toLocaleDateString('en-GB') : '';
-                        }
+                        // render: function(date) {
+                        //     return date ? new Date(date).toLocaleDateString('en-GB') : '';
+                        // }
                     }
                 ],
                 order: [

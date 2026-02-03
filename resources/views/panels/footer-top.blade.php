@@ -328,9 +328,6 @@
                 uniId: uniId
             },
             success: function(response) {
-                //  console.log(JSON.stringify(response));
-                //   console.log(response);
-                //    console.log(data);
                 //  return false;
                 if (!response || !response.data) {
                     toastr.error("No filter data found");
@@ -449,103 +446,6 @@
         });
     });
 
-
-    // function excelData(method, uni_id, live_url) {
-
-    //     function splitDate(value) {
-    //         if (!value) return {
-    //             start: '',
-    //             end: ''
-    //         };
-
-    //         let parts = value.includes(',') ?
-    //             value.split(',') :
-    //             value.includes(' - ') ?
-    //             value.split(' - ') : [value];
-
-    //         parts = parts.map(v => v.trim());
-
-    //         return {
-    //             start: parts[0] || '',
-    //             end: parts[1] || ''
-    //         };
-    //     }
-
-    //     const process = splitDate($('#processed_by_center').val());
-    //     const payment = splitDate($('#payment_received').val());
-    //     const document = splitDate($('#document_received').val());
-
-    //     const filters = {
-    //         student_id: $('#student_id').val() || null,
-    //         processed_by_center_start: process.start || null,
-    //         processed_by_center_end: process.end || null,
-    //         payment_received_start: payment.start || null,
-    //         payment_received_end: payment.end || null,
-    //         document_received_start: document.start || null,
-    //         document_received_end: document.end || null,
-    //         course: $('#courses').val() || null,
-    //         user: $('#users').val() || null
-    //     };
-
-    //     Object.keys(filters).forEach(
-    //         key => (filters[key] === null || filters[key] === '') && delete filters[key]
-    //     );
-
-    //     let finalUrl =
-    //         live_url + '/app/process/index?method=' + method + '&uni_id=' + uni_id;
-
-    //     if (Object.keys(filters).length > 0) {
-    //         finalUrl += '&filter=' + encodeURIComponent(btoa(JSON.stringify(filters)));
-    //     }
-
-    //     // 🔥 STEP 1: FETCH DATA
-    //     fetch(finalUrl)
-    //         .then(res => res.json())
-    //         .then(res => {
-
-    //             if (!res.data || res.data.length === 0) {
-    //                 toastr.warning('No data found');
-    //                 return;
-    //             }
-
-    //             // 🔥 STEP 2: HEADER DEFINE
-    //             let header = [];
-    //             if (method === 'students') {
-    //                 header = [
-    //                     'Student ID', 'Enrollment', 'Name', 'Father', 'Email', 'Contact',
-    //                     'Process Date', 'Payment Date', 'Document Date',
-    //                     'User', 'Course', 'Specialization', 'Address', 'Status', 'Created'
-    //                 ];
-    //             }
-
-    //             // 🔥 STEP 3: SEND TO EXPORT
-    //             // $.ajax({
-    //             //     url: '/export/excel',
-    //             //     type: 'POST',
-    //             //     headers: {
-    //             //         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-    //             //     },
-    //             //     data: {
-    //             //         header: header,
-    //             //         data: res.data,
-    //             //         method: method
-    //             //     },
-    //             //     success: function (response) {
-    //             //         toastr.success('Excel generated successfully');
-    //             //     },
-    //             //     error: function () {
-    //             //         toastr.error('Excel generation failed');
-    //             //     }
-    //             // });
-    //             downloadExcel(header, res.data, method);
-
-    //         })
-    //         .catch(err => {
-    //             console.error(err);
-    //             toastr.error('Something went wrong');
-    //         });
-    // }
-
     function downloadExcel(header, data, method) {
         const form = document.createElement('form');
         form.method = 'POST';
@@ -599,109 +499,52 @@
             ]
         },
 
-        wallets: {
+        wallet: {
             header: [
-                'Wallet ID', 'Student ID', 'Amount', 'Type',
-                'Transaction Date', 'Status', 'Created'
+                'Type', 'Transaction Date', 'Transaction ID', 'Gateway ID',
+                'Bank', 'Payment Mode', 'Amount', 'Added By', 'Approved By', 'Approved On', 
+                'University', 'Created At'
             ],
-            filters: ['student_id']
+            filters: [
+                'transaction_start',
+                'transaction_end',
+                'transaction_id',
+                'users_id'
+            ]
         },
 
         users: {
             header: [
-                'User ID', 'Name', 'Email', 'Role', 'Status', 'Created'
+                'User Name', 'Verticals', 'Short Name', 'Email', 'Contact', 'Designation', 'Students Admission',
+                'Address', 'Status', 'Created At'
             ],
-            filters: ['user']
+            // filters: ['user']
+            filters: [
+                'processed_by_create_start',
+                'processed_by_create_end',
+                'user_vertical',
+                'user_role'
+            ]
         },
 
-        ledgers: {
+        ledger: {
             header: [
-                'Ledger ID', 'Reference', 'Debit', 'Credit',
-                'Balance', 'Date', 'Created'
+                'Student ID', 'Student Name', 'Email', 'Contact',
+                'Duration', 'Transaction Date', 'Transaction ID', 'Payment Type', 'Fee Amount',
+                'Settlement Amount', 'Final Amount', 'Center', 'Created At'
             ],
-            filters: []
+            filters: [
+                'transaction_start',
+                'transaction_end',
+                'transaction_id',
+                'users_id'
+            ]
         }
     };
-
     // ======================================
     // 🔥 MAIN EXCEL EXPORT FUNCTION
     // ======================================
-    // function excelData(method, uni_id, live_url) {
 
-    //     // 🔹 Date range splitter
-    //     function splitDate(value) {
-    //         if (!value) return {
-    //             start: null,
-    //             end: null
-    //         };
-
-    //         let parts = value.includes(' - ') ?
-    //             value.split(' - ') :
-    //             value.includes(',') ?
-    //             value.split(',') : [value];
-
-    //         return {
-    //             start: parts[0]?.trim() ?? null,
-    //             end: parts[1]?.trim() ?? null
-    //         };
-    //     }
-    //     if (method === 'students') {
-    //         // 🔹 Date filters
-    //         const process = splitDate($('#processed_by_center').val());
-    //         const payment = splitDate($('#payment_received').val());
-    //         const document = splitDate($('#document_received').val());
-
-    //         // 🔹 Base filters (student values included)
-    //         let filters = {
-    //             student_id: $('#student_id').val(),
-    //             processed_by_center_start: process.start,
-    //             processed_by_center_end: process.end,
-    //             payment_received_start: payment.start,
-    //             payment_received_end: payment.end,
-    //             document_received_start: document.start,
-    //             document_received_end: document.end,
-    //             course: $('#courses').val(),
-    //             user: $('#users').val()
-    //         };
-    //     }
-    //     // 🎯 Apply module-specific filter rules
-    //     const allowedFilters = EXCEL_CONFIG[method]?.filters || [];
-    //     // console.log(allowedFilters);return false;
-    //     Object.keys(filters).forEach(key => {
-    //         if (!allowedFilters.includes(key) || filters[key] === null || filters[key] === '') {
-    //             delete filters[key];
-    //         }
-    //     });
-    //     console.log(filters);
-    //     return false;
-    //     // 🔹 Build final API URL
-    //     let finalUrl =
-    //         live_url + '/app/process/index?method=' + method + '&uni_id=' + uni_id;
-
-    //     if (Object.keys(filters).length > 0) {
-    //         finalUrl += '&filter=' + encodeURIComponent(
-    //             btoa(JSON.stringify(filters))
-    //         );
-    //     }
-
-    //     // ======================================
-    //     // 🔥 FETCH & EXPORT
-    //     // ======================================
-    //     // console.log(finalUrl);return false;
-    //     fetch(finalUrl)
-    //         .then(res => res.json())
-    //         .then(res => {
-
-    //             if (!res.data || res.data.length === 0) {
-    //                 toastr.warning('No data found');
-    //                 return;
-    //             }
-
-    //             const header = EXCEL_CONFIG[method]?.header || [];
-    //             downloadExcel(header, res.data, method);
-    //         })
-    //         .catch(() => toastr.error('Something went wrong'));
-    // }
     function excelData(method, uni_id, live_url) {
 
         // 🔹 Date range splitter
@@ -714,8 +557,7 @@
             let parts = value.includes(' - ') ?
                 value.split(' - ') :
                 value.includes(',') ?
-                value.split(',') :
-                [value];
+                value.split(',') : [value];
 
             return {
                 start: parts[0]?.trim() ?? null,
@@ -746,32 +588,34 @@
                 course: $('#courses').val(),
                 user: $('#users').val()
             };
-        }
-
-        // ===============================
-        // 💰 WALLETS FILTERS
-        // ===============================
-        if (method === 'wallets') {
+        } else if (method === 'users') {
+            const createDate = splitDate($('#created_AT').val());
             filters = {
-                student_id: $('#student_id').val()
+                processed_by_create_start: createDate.start,
+                processed_by_create_end: createDate.end,
+                user_vertical: $('#user_vertical').val(),
+                user_role: $('#user_role').val()
+            };
+        } else if (method === 'wallet') {
+            // Use helper to parse single date or range
+            const range = splitDate($('#transaction_date').val() || '');
+
+            filters = {
+                transaction_start: range.start || '',
+                transaction_end: range.end || '',
+                transaction_type: $('#transaction_type').val() || '',
+                transaction_id: $('#transaction_id').val() || ''
+            };
+        } else if (method === 'ledger') {
+            const range = splitDate($('#transaction_date').val() || '');
+            filters = {
+                transaction_start: range.start || '',
+                transaction_end: range.end || '',
+                transaction_id: $('#transaction_id').val() || '',
+                users_id: $('#course_id').val() || ''
             };
         }
 
-        // ===============================
-        // 👤 USERS FILTERS
-        // ===============================
-        if (method === 'users') {
-            filters = {
-                user: $('#users').val()
-            };
-        }
-
-        // ===============================
-        // 📒 LEDGERS FILTERS
-        // ===============================
-        if (method === 'ledgers') {
-            filters = {}; // no filters
-        }
 
         // ===============================  
         // 🎯 APPLY EXCEL CONFIG RULES
@@ -790,7 +634,7 @@
         // 🔹 BUILD FINAL API URL
         // ===============================
         let finalUrl = live_url + '/app/process/index?method=' + method + '&uni_id=' + uni_id;
-
+        //   console.log(finalUrl);return false;
         if (Object.keys(filters).length > 0) {
             finalUrl += '&filter=' + encodeURIComponent(
                 btoa(JSON.stringify(filters))
