@@ -65,7 +65,6 @@
                                         class="{{ request()->routeIs('users.*') ? 'active' : '' }}">Users</a></li>
                             </ul>
                         </li>
-                        {{ dd(session()) }}
                         @if (session()->has('uni_id'))
                             <li class="dropdown">
                                 <a class="nav-link menu-title" href="javascript:void(0)">

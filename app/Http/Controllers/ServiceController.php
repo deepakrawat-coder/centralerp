@@ -630,8 +630,8 @@ class ServiceController extends Controller
         if ($request->has('live_url')) {
             session(['live_url' => $request->live_url]);
         }
-
-        return response()->json(['status' => true]);
+            $uni_id = session('uni_id');
+        return response()->json(['status' => true,'uni_id'=>$uni_id ]);
     }
     // public function dashboard(Request $request, $uni_id = null)
     // {
