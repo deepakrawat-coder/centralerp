@@ -104,33 +104,58 @@ class ServiceController extends Controller
     }
 
 
+
     public function dashboard(Request $request, $uni_id = null)
     {
-
-
-        $uni_id = $uni_id;
-        // if (!$uni_id) {
-        //     return response()->json(['status' => false, 'message' => 'University ID missing']);
-        // }
-        if (!($uni_id)) {
-
+        if (!$uni_id) {
             return view('services.dashboard.index');
         }
-        Session::forget('uni_id');
-        Session::put('uni_id', $uni_id);
-        $uni_id = Session::get('uni_id');
+
+        session(['uni_id' => $uni_id]);
+        session()->save();
+
         $liveurl = $request->live_url;
-        $url =  $liveurl . '/app/process/index?method=dashboard&uni_id=' . $uni_id;
+
+        $url = $liveurl.'/app/process/index?method=dashboard&uni_id='.$uni_id;
+
         $response = Http::timeout(10)
             ->acceptJson()
             ->post($url, []);
+
         if ($request->has('live_url')) {
-            Session::forget('live_url');
-            Session::put('live_url', $request->live_url);
+            session(['live_url' => $request->live_url]);
         }
 
         return response()->json(['status' => true]);
     }
+
+    // public function dashboard(Request $request, $uni_id = null)
+    // {
+
+
+    //     // $uni_id = $uni_id;
+    //     // if (!$uni_id) {
+    //     //     return response()->json(['status' => false, 'message' => 'University ID missing']);
+    //     // }
+    //     if (!($uni_id)) {
+
+    //         return view('services.dashboard.index');
+    //     }
+    //     Session::forget('uni_id');
+    //     Session::put('uni_id', $uni_id);
+    //     $uni_id = Session::get('uni_id');
+    //     $liveurl = $request->live_url;
+    //     $url =  $liveurl . '/app/process/index?method=dashboard&uni_id=' . $uni_id;
+    //     $response = Http::timeout(10)
+    //         ->acceptJson()
+    //         ->post($url, []);
+    //     if ($request->has('live_url')) {
+    //         Session::forget('live_url');
+    //         Session::put('live_url', $request->live_url);
+    //     }
+
+    //     return response()->json(['status' => true]);
+    // }
     // public function students(Request $request, $uni_id)
     // {
     //     dd('hello');
