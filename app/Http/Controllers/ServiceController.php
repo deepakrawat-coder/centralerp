@@ -615,7 +615,7 @@ class ServiceController extends Controller
         if (!$uni_id) {
             return view('services.dashboard.index');
         }
-
+        Session::remove('uni_id');
         session(['uni_id' => $uni_id]);
         session()->save();
 
