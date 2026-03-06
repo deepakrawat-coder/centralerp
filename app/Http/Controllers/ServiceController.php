@@ -631,7 +631,8 @@ class ServiceController extends Controller
             session(['live_url' => $request->live_url]);
         }
             $uni_id = session('uni_id');
-        return response()->json(['status' => true,'uni_id'=>$uni_id ]);
+            return redirect('/dashboard');
+        // return response()->json(['status' => true,'uni_id'=>$uni_id ]);
     }
     // public function dashboard(Request $request, $uni_id = null)
     // {

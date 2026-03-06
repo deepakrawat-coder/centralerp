@@ -288,28 +288,28 @@
             toastr.error("University ID missing!");
             return;
         }
+        window.location.href = "/dashboards/" + uniId;
+        // $.ajax({
+        //     url: "/dashboards/" + uniId,
+        //     type: "GET",
+        //     data: {
+        //         id: uniId,
+        //         live_url: liveUrl
+        //     },
+        //     success: function(res) {
 
-        $.ajax({
-            url: "/dashboards/" + uniId,
-            type: "GET",
-            data: {
-                id: uniId,
-                live_url: liveUrl
-            },
-            success: function(res) {
-
-                if (res.status) {
-                    $('#students-table').DataTable().ajax.reload();
-                    console.log('session_id',{{ session('uni_id') }});
-                    // window.location.href = "/dashboard?id="+res.uni_id;
-                } else {
-                    toastr.error(res.message);
-                }
-            },
-            error: function() {
-                toastr.error("Something went wrong!");
-            }
-        });
+        //         if (res.status) {
+        //             $('#students-table').DataTable().ajax.reload();
+        //             console.log('session_id',{{ session('uni_id') }});
+        //             // window.location.href = "/dashboard?id="+res.uni_id;
+        //         } else {
+        //             toastr.error(res.message);
+        //         }
+        //     },
+        //     error: function() {
+        //         toastr.error("Something went wrong!");
+        //     }
+        // });
 
     });
     function filterdata(liveUrl, uniId) {
