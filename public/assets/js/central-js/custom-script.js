@@ -126,7 +126,7 @@ $(document).on("click", ".erp-university-card", function () {
         success: function (res) {
             if (res.status) {
                 $("#students-table").DataTable().ajax.reload();
-                window.location.href = "/dashboard/"+res.uni_id;
+                window.location.href = "/dashboard?id="+res.uni_id;
             } else {
                 toastr.error(res.message);
             }

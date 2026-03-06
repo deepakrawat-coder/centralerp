@@ -300,7 +300,7 @@
 
                 if (res.status) {
                     $('#students-table').DataTable().ajax.reload();
-                    window.location.href = "/dashboard"+res.uni_id;;
+                    window.location.href = "/dashboard?id="+res.uni_id;
                 } else {
                     toastr.error(res.message);
                 }
