@@ -301,7 +301,7 @@
                 if (res.status) {
                     $('#students-table').DataTable().ajax.reload();
                     console.log('session_id',{{ session('uni_id') }});
-                    window.location.href = "/dashboard?id="+res.uni_id;
+                    // window.location.href = "/dashboard?id="+res.uni_id;
                 } else {
                     toastr.error(res.message);
                 }

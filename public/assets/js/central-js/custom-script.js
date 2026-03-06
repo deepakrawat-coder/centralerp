@@ -128,7 +128,7 @@ $(document).on("click", ".erp-university-card", function () {
                 $("#students-table").DataTable().ajax.reload();
                 session_id = "<?php echo session('uni_id')?>";
                 console.log('session_id',session_id);
-                window.location.href = "/dashboard?id="+res.uni_id;
+                // window.location.href = "/dashboard?id="+res.uni_id;
             } else {
                 toastr.error(res.message);
             }
