@@ -288,7 +288,7 @@
             toastr.error("University ID missing!");
             return;
         }
-        window.location.href = "/dashboards/" + uniId;
+        window.location.href = "/dashboards/" + uniId+"?live_url="+liveUrl;
         // $.ajax({
         //     url: "/dashboards/" + uniId,
         //     type: "GET",
