@@ -47,6 +47,8 @@ Route::middleware(['role:Super Admin'])->group(function () {
     Route::post('/logout', [ServiceController::class, 'logout'])->name('logout');
     Route::post('/export/excel', [ServiceController::class, 'exportExcel'])
         ->name('export.excel');
+    Route::post('customdownload',[ServiceController::class,'customDownload'])->name('customdownload');
+    Route::post('download-custom-data',[ServiceController::class,'downloadCustomData'])->name('download-custom-data');
 
     // Route::view('/login', 'login.index')->name('login.index');
 });

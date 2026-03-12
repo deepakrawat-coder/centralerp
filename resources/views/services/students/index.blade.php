@@ -62,6 +62,8 @@
                             </button>
                             <button class="border-0 shadow-none bg-white fs-3 text-success"><i class="ri-file-excel-2-fill"
                                     onclick="excelData('students','{{ session('uni_id') }}','{{ session('live_url') }}')"></i></button>
+                            <button class="border-0 shadow-none bg-white fs-3 text-primary"><i class="ri-download-cloud-line"
+                                    onclick="downloadCustomData('students','{{ session('uni_id') }}','{{ session('live_url') }}')"></i></button>
                         </div>
                     </div>
                     {{-- @php

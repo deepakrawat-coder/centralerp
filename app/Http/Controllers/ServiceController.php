@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Yajra\DataTables\Facades\DataTables;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -153,7 +154,7 @@ class ServiceController extends Controller
                 'payload' => $request->except('id'),
             ]);
         $responseData = $response->json();
-        // dd($responseData['data']);
+        // dd($responseData);
 
         if ($method === "students") {
             // dd($responseData);
@@ -970,5 +971,67 @@ class ServiceController extends Controller
             $fileName,
             ['Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']
         );
+    }
+
+    public function customDownload(Request $request){
+        $columnsData = [];
+        $method = $request->method;
+        $uniId = $request->uniId;
+        $liveUrl = $request->liveUrl;
+        if($request->method=="students"){
+            $columnsData = ["Student_ID","Enrollment_No","Roll_Number","Step","Added On","Processed By Center","Processed To University","Student Name","Father Name","Mother Name","Adm Type","Session","Duration","Mode","Course","Sub Course","Short Name","Email","Contact","Alternate Email","Alternate Contact","Aadhar Number","DOB","Employement Status","Gender","Category","Address","City","District","State","Pincode","Nationality","High School","10th Subject","10th Year","10th Board/Institute","10th Marks Obtained","10th Maximum Marks","10th Total Marks","Intermediate","12th Subject","12th Year","12th Board/Institute","12th Marks Obtained","12th Maximum Marks","12th Total Marks","UG","ug Subject","ug Year","ug Board/Institute","ug Marks Obtained","ug Maximum Marks","ug Total Marks","PG","pg Subject","pg Year","pg Board/Institute","pg Marks Obtained","pg Maximum Marks","pg Total Marks","Other","other Subject","other Year","other Board/Institute","other Marks Obtained","other Maximum Marks","other Total Marks","Code","Center Name","RM","Export Documents","Course Fee","Course Fee %","Total","Total Fee Received","Course Duration","Transfer ID"];
+
+        }
+        $colums = array_map(function($item){
+                    return strtolower(str_replace(" ","_",$item));
+            },$columnsData);
+        return view('download-field',compact('colums','method','uniId','liveUrl'));
+    }
+
+    public function downloadCustomData(Request $request){
+        try{
+            $requestUrl =  $request->live_url . '/app/process/index?method=export&uni_id=' . $request->uni_id;
+            $method = $request->method;
+            $request->request->remove('method');
+            $request->request->remove('live_url');
+            $request->request->remove('_token');
+            $request->request->remove('uni_id');
+            $columns = array_keys($request->toArray());
+            // dd($columns);
+            if(count($columns)<1){
+                return response()->json(['status'=>'error',"message"=>'Columns not selected']);
+            }
+            $columns['method'] = $method;
+            $requiredColumns = base64_encode(json_encode($columns));
+            $requestUrl = $requestUrl.'&payload='.$requiredColumns;
+                $response = Http::acceptJson()
+                ->post($requestUrl, [
+                    'payload' => $columns,
+                ]);
+            //    dd($response->body()); 
+            $response = $response->json();
+                $filteredData = [];
+            if($response['status']==true && $response['status_code']=="SUCCESS" && !empty($response['data'])){
+                $exportData = $response['data']['data'];
+                $exportHeader = array_map(function($item){
+                    return str_replace(" ","_",strtolower($item));
+                },$exportData['headers']);
+                foreach($exportData['rows'] as $exportRow){
+                    // dd(count($exportData['headers']),count($exportRow));
+                    $data[] = array_combine($exportHeader ,$exportRow);
+                }
+                unset($columns['method']);
+                foreach ($data as $key => $row) {
+                    // array_intersect_key का use करके सिर्फ desired columns लें
+                    $filteredData[$key] = array_intersect_key($row, array_flip($columns));
+                }
+                array_unshift($filteredData,$columns);
+                return response()->json(['status'=>'success','data'=>$filteredData]);   
+            }else{
+                return response()->json(['status'=>'error','message'=>"API Response Not Readable"]); 
+            }
+        }catch(Exception $e){
+            return response()->json(['status'=>'error','message'=>$e->getMessage()]);
+        }
     }
 }

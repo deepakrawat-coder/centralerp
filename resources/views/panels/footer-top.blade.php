@@ -226,6 +226,7 @@
             // },
 
             success: function(response) {
+                // console.log(response);
                 if (response.status === true && Array.isArray(response.data)) {
 
                     let universities = response.data;
@@ -653,5 +654,23 @@
                 downloadExcel(header, res.data, method);
             })
             .catch(() => toastr.error('Something went wrong'));
+    }
+
+    function downloadCustomData(method,uniId,liveUrl){
+            $.ajax({
+                url:"{{ route('customdownload') }}",
+                type:"post",
+                data:{
+                    method,
+                    uniId,
+                    liveUrl,
+                    '_token':"{{ csrf_token() }}"
+                },
+                success:function(res){
+                    modal = 'modal-lg';
+                    $('#' + modal + '-content').html(res);
+                    $('#' + modal).modal('show');
+                }
+            })
     }
 </script>
