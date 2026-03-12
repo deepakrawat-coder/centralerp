@@ -989,7 +989,7 @@ class ServiceController extends Controller
     }
 
     public function downloadCustomData(Request $request){
-        try{
+        // try{
             $requestUrl =  $request->live_url . '/app/process/index?method=export&uni_id=' . $request->uni_id;
             $method = $request->method;
             $request->request->remove('method');
@@ -1030,8 +1030,8 @@ class ServiceController extends Controller
             }else{
                 return response()->json(['status'=>'error','message'=>"API Response Not Readable"]); 
             }
-        }catch(Exception $e){
-            return response()->json(['status'=>'error','message'=>$e->getMessage()]);
-        }
+        // }catch(Exception $e){
+        //     return response()->json(['status'=>'error','message'=>$e->getMessage()]);
+        // }
     }
 }
